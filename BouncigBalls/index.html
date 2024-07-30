@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="./style.css">
+<script type="text/javascript" src="./js/Model/Ball.js"></script>
+<script type="text/javascript" src="./js/Model/CustomShape.js"></script>
+<script type="text/javascript" src="./js/Controller/ControlPanel.js"></script>
+<script type="text/javascript" src="./index.js" defer></script>
+<title>Препятствия и шарики</title>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <div class="control-panel">
+        <label for="speed">Speed</label>
+        <select id="speed">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <label for="elasticity">Elasticity</label>
+        <select id="elasticity">
+            <option value="0.5">0.5</option>
+            <option value="0.6">0.6</option>
+            <option value="0.7">0.7</option>
+            <option value="0.8">0.8</option>
+            <option value="0.9">0.9</option>
+            <option value="1" selected>1</option>
+        </select>
+    </div>
+
+    <div class="menu hidden" id="gameMenu">
+        <div class="menu-item help-item shadow-item">
+            <button id="helpButton">Help</button>
+        </div>
+    
+        <div class="menu-item size-item shadow-item">
+            <label for="size">Size</label>
+            <input type="range" id="sizeRange" min="10" max="20" value="15" step="1">
+            <span id="sizeValue">15</span>
+        </div>
+        <div class="menu-item size-item shadow-item">
+            <label for="measurements">Measurements</label>
+            <input type="text" id="X" placeholder="X">
+            <input type="text" id="Y" placeholder="Y">
+        </div>
+        <div class="menu-item material-item shadow-item">
+            <label for="material">Material</label>
+            <div id="materialButtonContainer">
+                <button id="material">Choose Material</button>
+                <button id="addMaterial">Add Material</button>
+            </div>
+        </div>
+        <div class="menu-item color-item shadow-item">
+            <label for="color">Color</label>
+            <input type="color" id="color" name="color">
+        </div>
+        <div class="menu-item create-ball-item shadow-item">
+            <button id="createBall">Create Ball</button>
+        </div>
+    </div>
+    
+    <div class="menu hidden" id="materialMenu">
+        <div class="menu-item material-list shadow-item">
+            <label for="materialType">Available Materials</label>
+            <select id="materialType"></select>
+        </div>
+        <div class="menu-item material-option shadow-item">
+            <button id="backToMainMenu">Cancel</button>
+        </div>
+    </div>
+    
+    <div class="menu hidden" id="addMaterialMenu">
+        <div class="menu-item shadow-item">
+            <label for="materialName">Material Name</label>
+            <input type="text" id="materialName" placeholder="Enter material name">
+        </div>
+        <div class="menu-item shadow-item">
+            <label for="materialMass">Mass</label>
+            <select id="materialMass">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="menu-item shadow-item" id="materialButtonContainer">
+            <button id="saveMaterial">Save</button>
+            <button id="cancelMaterial">Cancel</button>
+        </div>
+    </div>
+    
+    <div class="menu hidden" id="helpMenu">
+        <div class="menu-item shadow-item">
+            <h2>Help</h2>
+            <p style="text-align: left;">1. Материал шарика влияет на его отталкивание от других шариков.</p>
+            <p>2. Если необходимо удалить шарик: ставим на паузу, нажимаем пкм по шарику на поле, нажимаем воспроизведение.</p>
+            <button id="closeHelpButton">Close</button>
+        </div>
+    </div>
+
+    <img id="pause" src="./images/pause_button.png" alt="Pause" />
+    <img id="play" src="./images/play_button.png" alt="Play" class="hidden" />
+</body>
+</html>
