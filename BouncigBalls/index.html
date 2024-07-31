@@ -39,20 +39,12 @@
     </div>
 
     <div class="menu hidden" id="gameMenu">
-        <div class="menu-item help-item shadow-item">
-            <button id="helpButton">Help</button>
-        </div>
-    
         <div class="menu-item size-item shadow-item">
             <label for="size">Size</label>
             <input type="range" id="sizeRange" min="10" max="20" value="15" step="1">
             <span id="sizeValue">15</span>
         </div>
-        <div class="menu-item size-item shadow-item">
-            <label for="measurements">Measurements</label>
-            <input type="text" id="X" placeholder="X">
-            <input type="text" id="Y" placeholder="Y">
-        </div>
+    
         <div class="menu-item material-item shadow-item">
             <label for="material">Material</label>
             <div id="materialButtonContainer">
@@ -67,6 +59,9 @@
         <div class="menu-item create-ball-item shadow-item">
             <button id="createBall">Create Ball</button>
         </div>
+        <div class="menu-item ball-container shadow-item" id="ballContainer"></div>
+
+        
     </div>
     
     <div class="menu hidden" id="materialMenu">
@@ -97,15 +92,6 @@
         <div class="menu-item shadow-item" id="materialButtonContainer">
             <button id="saveMaterial">Save</button>
             <button id="cancelMaterial">Cancel</button>
-        </div>
-    </div>
-    
-    <div class="menu hidden" id="helpMenu">
-        <div class="menu-item shadow-item">
-            <h2>Help</h2>
-            <p style="text-align: left;">1. Материал шарика влияет на его отталкивание от других шариков.</p>
-            <p>2. Если необходимо удалить шарик: ставим на паузу, нажимаем пкм по шарику на поле, нажимаем воспроизведение.</p>
-            <button id="closeHelpButton">Close</button>
         </div>
     </div>
 

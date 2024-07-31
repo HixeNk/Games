@@ -22,40 +22,44 @@ class ControlPanel {
         this.materialNameInput = document.getElementById('materialName');
         this.materialMassSelect = document.getElementById('materialMass');
         this.materialTypeSelect = document.getElementById('materialType');
-        this.xInput = document.getElementById('X');
-        this.yInput = document.getElementById('Y');
         this.timeMultiplier = 1;
+        this.isPaused = false; // Локальное состояние для управления паузой
 
         this.materialList = [{ name: 'Plastic', mass: 1 }];
         this.updateMaterialList();
 
-        this.helpMenu = document.getElementById('helpMenu');
-        this.helpButton = document.getElementById('helpButton');
-        this.closeHelpButton = document.getElementById('closeHelpButton');
+        this.initEventListeners();
 
-        this.speedSelect.addEventListener('change', this.updateValues.bind(this));
-        this.elasticitySelect.addEventListener('change', this.updateValues.bind(this));
-        this.pauseButton.addEventListener('click', this.pauseBalls.bind(this));
-        this.playButton.addEventListener('click', this.playBalls.bind(this));
-        this.createBallButton.addEventListener('click', this.createBall.bind(this));
-        this.chooseMaterialButton.addEventListener('click', this.showMaterialMenu.bind(this));
-        this.backButton.addEventListener('click', this.showMainMenu.bind(this));
-        this.addMaterialButton.addEventListener('click', this.showAddMaterialMenu.bind(this));
-        this.cancelMaterialButton.addEventListener('click', this.cancelAddMaterial.bind(this));
-        this.saveMaterialButton.addEventListener('click', this.saveNewMaterial.bind(this));
-        this.helpButton.addEventListener('click', this.showHelpMenu.bind(this));
-        this.closeHelpButton.addEventListener('click', this.closeHelpMenu.bind(this));
-        this.sizeRange.addEventListener('input', this.updateSizeDisplay.bind(this));
+        this.ballContainer = document.getElementById('ballContainer');
+        this.initDragAndDrop();
 
         const controlPanel = document.querySelector('.control-panel');
         this.setupDraggableElement(controlPanel);
         this.setupDraggableElement(this.menu);
         this.setupDraggableElement(this.materialMenu);
         this.setupDraggableElement(this.addMaterialMenu);
-        this.setupDraggableElement(this.helpMenu);
 
         this.setInitialPosition(controlPanel);
         this.updateValues();
+
+        // Setup the ballContainer to ignore drag events
+        this.ballContainer.addEventListener('mousedown', (event) => {
+            event.stopPropagation();
+        });
+    }
+
+    initEventListeners() {
+        this.speedSelect.addEventListener('change', () => this.updateValues());
+        this.elasticitySelect.addEventListener('change', () => this.updateValues());
+        this.pauseButton.addEventListener('click', () => this.pauseBalls());
+        this.playButton.addEventListener('click', () => this.playBalls());
+        this.createBallButton.addEventListener('click', () => this.createBall());
+        this.chooseMaterialButton.addEventListener('click', () => this.showMaterialMenu());
+        this.backButton.addEventListener('click', () => this.showMainMenu());
+        this.addMaterialButton.addEventListener('click', () => this.showAddMaterialMenu());
+        this.cancelMaterialButton.addEventListener('click', () => this.cancelAddMaterial());
+        this.saveMaterialButton.addEventListener('click', () => this.saveNewMaterial());
+        this.sizeRange.addEventListener('input', () => this.updateSizeDisplay());
     }
 
     setInitialPosition(element) {
@@ -126,14 +130,14 @@ class ControlPanel {
     }
 
     pauseBalls() {
-        isPaused = true;
+        this.isPaused = true;
         this.pauseButton.style.display = 'none';
         this.playButton.style.display = 'block';
         this.menu.classList.remove('hidden');
     }
 
     playBalls() {
-        isPaused = false;
+        this.isPaused = false;
         this.pauseButton.style.display = 'block';
         this.playButton.style.display = 'none';
         this.menu.classList.add('hidden');
@@ -143,20 +147,33 @@ class ControlPanel {
     }
 
     createBall() {
-        const x = parseFloat(this.xInput.value) || Math.random() * 500;
-        const y = parseFloat(this.yInput.value) || Math.random() * 500;
         const radius = parseFloat(this.sizeRange.value);
         const color = this.colorInput.value;
-        const material = this.materialList[this.materialTypeSelect.selectedIndex];
-
-        const speed = parseFloat(this.speedSelect.value);
-        const angle = Math.random() * 2 * Math.PI;
-        const dx = speed * Math.cos(angle);
-        const dy = speed * Math.sin(angle);
-
-        const ball = new Ball(x, y, radius, dx, dy, color, material);
-
-        this.balls.push(ball);
+        const material = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || {name: 'Plastic', mass: 1};
+        
+        // Создание нового шарика
+        const newBall = new Ball(
+            Math.random() * window.innerWidth, // Начальная позиция X
+            Math.random() * window.innerHeight, // Начальная позиция Y
+            radius,
+            (Math.random() - 0.5) * 2, // Начальная скорость по X
+            (Math.random() - 0.5) * 2, // Начальная скорость по Y
+            color,
+            material
+        );
+    
+        // Получение контейнера
+        const ballContainer = document.getElementById('ballContainer');
+    
+        // Удаление старого шарика, если он существует
+        while (ballContainer.firstChild) {
+            ballContainer.removeChild(ballContainer.firstChild);
+        }
+    
+        // Отображение нового шарика в меню
+        newBall.renderInMenu(ballContainer);
+    
+        // Обновление значений
         this.updateValues();
     }
 
@@ -202,17 +219,70 @@ class ControlPanel {
     showMainMenu() {
         this.materialMenu.classList.add('hidden');
         this.addMaterialMenu.classList.add('hidden');
-        this.helpMenu.classList.add('hidden');
         this.menu.classList.remove('hidden');
     }
 
-    showHelpMenu() {
-        this.menu.classList.add('hidden');
-        this.helpMenu.classList.remove('hidden');
+    initDragAndDrop() {
+        let selectedBall = null;
+        let offsetX, offsetY;
+
+        // Обработчик нажатия мыши на шарик
+        this.ballContainer.addEventListener('mousedown', (event) => {
+            if (event.target.classList.contains('ball-item')) {
+                selectedBall = event.target;
+                const rect = selectedBall.getBoundingClientRect();
+                offsetX = event.clientX - rect.left;
+                offsetY = event.clientY - rect.top;
+                selectedBall.style.cursor = 'grabbing';
+                event.preventDefault();
+            }
+        });
+
+        // Обработчик движения мыши
+        document.addEventListener('mousemove', (event) => {
+            if (selectedBall) {
+                const x = event.clientX - offsetX;
+                const y = event.clientY - offsetY;
+                selectedBall.style.position = 'absolute'; // Убедитесь, что элемент имеет абсолютное позиционирование
+                selectedBall.style.left = `${x}px`;
+                selectedBall.style.top = `${y}px`;
+                event.preventDefault();
+            }
+        });
+
+        // Обработчик отпускания мыши
+        document.addEventListener('mouseup', (event) => {
+            if (selectedBall) {
+                selectedBall.style.cursor = 'grab';
+                const canvas = document.getElementById('myCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const ballX = event.clientX - rect.left;
+                const ballY = event.clientY - rect.top;
+
+                // Преобразование размеров и цвета для создания шарика на канвасе
+                const radius = parseFloat(selectedBall.style.width) / 2;
+                const color = selectedBall.style.backgroundColor;
+                const newBall = new Ball(ballX, ballY, radius, 0, 0, color);
+                
+                // Добавление нового шарика на канвас и в массив шариков
+                this.balls.push(newBall);
+                selectedBall.remove(); // Удаление шарика из контейнера
+
+                // Обновление экрана
+                const ctx = canvas.getContext('2d');
+                this.updateCanvas(ctx);
+                
+                selectedBall = null;
+            }
+        });
     }
 
-    closeHelpMenu() {
-        this.helpMenu.classList.add('hidden');
-        this.menu.classList.remove('hidden');
+    updateCanvas(ctx) {
+        // Очистка канваса
+        const canvas = document.getElementById('myCanvas');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let ball of this.balls) {
+            ball.draw(ctx);
+        }
     }
 }

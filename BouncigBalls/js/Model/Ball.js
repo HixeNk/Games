@@ -25,24 +25,24 @@ class Ball {
         ctx.fill();
     }
 
-     // Метод для обновления положения и обработки столкновений
-     update(canvas, shapes, balls) {
-    for (let i = 0; i < this.timeMultiplier; i++) {
-        this.handleCanvasCollision(canvas);
-        this.handleBallCollision(balls);
+    // Метод для обновления положения и обработки столкновений
+    update(canvas, shapes, balls) {
+        for (let i = 0; i < this.timeMultiplier; i++) {
+            this.handleCanvasCollision(canvas);
+            this.handleBallCollision(balls);
 
-        for (let shape of shapes) {
-            if (this.insideShape === shape) {
-                this.handleInsideShapeCollision(shape);
-            } else {
-                this.handleOutsideShapeCollision(shape);
+            for (let shape of shapes) {
+                if (this.insideShape === shape) {
+                    this.handleInsideShapeCollision(shape);
+                } else {
+                    this.handleOutsideShapeCollision(shape);
+                }
             }
-        }
 
-        this.x += this.dx;
-        this.y += this.dy;
+            this.x += this.dx;
+            this.y += this.dy;
+        }
     }
-}
 
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {
@@ -65,7 +65,7 @@ class Ball {
         }
     }
 
-     // Метод проверки столкновения с другим шариком
+    // Метод проверки столкновения с другим шариком
     isCollidingWith(ball) {
         const dx = this.x - ball.x;
         const dy = this.y - ball.y;
@@ -74,77 +74,75 @@ class Ball {
     }
 
     // Метод столкновения между шариками
-resolveBallCollision(ball) {
-    // Вектор нормали
-    const normal = { x: ball.x - this.x, y: ball.y - this.y };
-    const distance = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-    const unitNormal = { x: normal.x / distance, y: normal.y / distance };
-    const unitTangent = { x: -unitNormal.y, y: unitNormal.x };
+    resolveBallCollision(ball) {
+        // Вектор нормали
+        const normal = { x: ball.x - this.x, y: ball.y - this.y };
+        const distance = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+        const unitNormal = { x: normal.x / distance, y: normal.y / distance };
+        const unitTangent = { x: -unitNormal.y, y: unitNormal.x };
 
-    // Скорости вдоль нормали и касательной
-    const thisNormalVelocity = unitNormal.x * this.dx + unitNormal.y * this.dy;
-    const thisTangentVelocity = unitTangent.x * this.dx + unitTangent.y * this.dy;
-    const ballNormalVelocity = unitNormal.x * ball.dx + unitNormal.y * ball.dy;
-    const ballTangentVelocity = unitTangent.x * ball.dx + unitTangent.y * ball.dy;
+        // Скорости вдоль нормали и касательной
+        const thisNormalVelocity = unitNormal.x * this.dx + unitNormal.y * this.dy;
+        const thisTangentVelocity = unitTangent.x * this.dx + unitTangent.y * this.dy;
+        const ballNormalVelocity = unitNormal.x * ball.dx + unitNormal.y * ball.dy;
+        const ballTangentVelocity = unitTangent.x * ball.dx + unitTangent.y * ball.dy;
 
-    // Новые скорости вдоль нормали
-    const thisNewNormalVelocity = ((thisNormalVelocity * (this.mass - ball.mass) + 2 * ball.mass * ballNormalVelocity) / (this.mass + ball.mass));
-    const ballNewNormalVelocity = ((ballNormalVelocity * (ball.mass - this.mass) + 2 * this.mass * thisNormalVelocity) / (this.mass + ball.mass));
+        // Новые скорости вдоль нормали
+        const thisNewNormalVelocity = ((thisNormalVelocity * (this.mass - ball.mass) + 2 * ball.mass * ballNormalVelocity) / (this.mass + ball.mass));
+        const ballNewNormalVelocity = ((ballNormalVelocity * (ball.mass - this.mass) + 2 * this.mass * thisNormalVelocity) / (this.mass + ball.mass));
 
-    // Применение новых скоростей
-    this.dx = unitNormal.x * thisNewNormalVelocity + unitTangent.x * thisTangentVelocity;
-    this.dy = unitNormal.y * thisNewNormalVelocity + unitTangent.y * thisTangentVelocity;
-    ball.dx = unitNormal.x * ballNewNormalVelocity + unitTangent.x * ballTangentVelocity;
-    ball.dy = unitNormal.y * ballNewNormalVelocity + unitTangent.y * ballTangentVelocity;
+        // Применение новых скоростей
+        this.dx = unitNormal.x * thisNewNormalVelocity + unitTangent.x * thisTangentVelocity;
+        this.dy = unitNormal.y * thisNewNormalVelocity + unitTangent.y * thisTangentVelocity;
+        ball.dx = unitNormal.x * ballNewNormalVelocity + unitTangent.x * ballTangentVelocity;
+        ball.dy = unitNormal.y * ballNewNormalVelocity + unitTangent.y * ballTangentVelocity;
 
-    // Коррекция пересечения
-    const overlap = (this.radius + ball.radius) - distance;
-    const correction = overlap / 2;
-    this.x -= correction * unitNormal.x;
-    this.y -= correction * unitNormal.y;
-    ball.x += correction * unitNormal.x;
-    ball.y += correction * unitNormal.y;
+        // Коррекция пересечения
+        const overlap = (this.radius + ball.radius) - distance;
+        const correction = overlap / 2;
+        this.x -= correction * unitNormal.x;
+        this.y -= correction * unitNormal.y;
+        ball.x += correction * unitNormal.x;
+        ball.y += correction * unitNormal.y;
 
-    // Коррекция скорости в зависимости от упругости
-    const elasticityFactor = 0.9; 
-    this.dx *= Math.max(this.elasticity, elasticityFactor);
-    this.dy *= Math.max(this.elasticity, elasticityFactor);
-    ball.dx *= Math.max(ball.elasticity, elasticityFactor);
-    ball.dy *= Math.max(ball.elasticity, elasticityFactor);
-}
+        // Коррекция скорости в зависимости от упругости
+        const elasticityFactor = 0.9; 
+        this.dx *= Math.max(this.elasticity, elasticityFactor);
+        this.dy *= Math.max(this.elasticity, elasticityFactor);
+        ball.dx *= Math.max(ball.elasticity, elasticityFactor);
+        ball.dy *= Math.max(ball.elasticity, elasticityFactor);
+    }
 
+    // Метод обработки столкновений вне фигуры
+    handleOutsideShapeCollision(shape) {
+        if (shape.intersects(this)) {
+            for (let i = 0; i < shape.points.length; i++) {
+                let start = shape.points[i];
+                let end = shape.points[(i + 1) % shape.points.length];
+                if (shape.lineIntersectsCircle(start[0], start[1], end[0], end[1], this.x, this.y, this.radius)) {
+                    this.resolveShapeCollision(start, end, shape);
+                }
+            }
+        } else {
+            let closestPoint = this.findClosestPoint(shape);
+            let dx = this.x - closestPoint.x;
+            let dy = this.y - closestPoint.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
 
+            if (distance < this.radius) {
+                let overlap = this.radius - distance;
+                let unitNormal = { x: dx / distance, y: dy / distance };
 
-   // Метод обработки столкновений вне фигуры
-   handleOutsideShapeCollision(shape) {
-    if (shape.intersects(this)) {
-        for (let i = 0; i < shape.points.length; i++) {
-            let start = shape.points[i];
-            let end = shape.points[(i + 1) % shape.points.length];
-            if (shape.lineIntersectsCircle(start[0], start[1], end[0], end[1], this.x, this.y, this.radius)) {
-                this.resolveShapeCollision(start, end, shape);
+                this.x += unitNormal.x * overlap;
+                this.y += unitNormal.y * overlap;
+
+                this.resolveShapeCollision(closestPoint, closestPoint, shape);
             }
         }
-    } else {
-        let closestPoint = this.findClosestPoint(shape);
-        let dx = this.x - closestPoint.x;
-        let dy = this.y - closestPoint.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < this.radius) {
-            let overlap = this.radius - distance;
-            let unitNormal = { x: dx / distance, y: dy / distance };
-
-            this.x += unitNormal.x * overlap;
-            this.y += unitNormal.y * overlap;
-
-            this.resolveShapeCollision(closestPoint, closestPoint, shape);
-        }
     }
-}
 
-// Метод обработки столкновений внутри фигуры
-handleInsideShapeCollision(shape) {
+    // Метод обработки столкновений внутри фигуры
+    handleInsideShapeCollision(shape) {
         if (!shape.contains(this)) {
             let closestPoint = this.findClosestPoint(shape);
             let dx = this.x - closestPoint.x;
@@ -215,8 +213,8 @@ handleInsideShapeCollision(shape) {
         };
     }
 
-// Метод разрешения столкновений с вершинами
-resolveVertexCollision(vertex) {
+    // Метод разрешения столкновений с вершинами
+    resolveVertexCollision(vertex) {
         const dx = this.x - vertex[0];
         const dy = this.y - vertex[1];
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -270,4 +268,17 @@ resolveVertexCollision(vertex) {
             this.resolveVertexCollision(shape.points[i]);
         }
     }
+
+    renderInMenu(container) {
+        const ballElement = document.createElement('div');
+        ballElement.classList.add('ball-item');
+        ballElement.style.width = `${this.radius * 2}px`;
+        ballElement.style.height = `${this.radius * 2}px`;
+        ballElement.style.backgroundColor = this.color;
+        ballElement.style.borderRadius = '50%'; // Придание форме шара
+        ballElement.style.position = 'relative'; // Позиционирование внутри контейнера
+    
+        container.appendChild(ballElement);
+    }
+    
 }

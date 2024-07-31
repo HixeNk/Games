@@ -3,16 +3,29 @@ body, html {
     padding: 0;
     height: 100%;
     overflow: hidden;
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
 canvas {
     display: block;
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
+
 button {
 padding: 10px;
 border: 2px solid #000;
 border-radius: 3px;
 background-color: #fff;
 cursor: pointer;
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 .menu button {
 width: 100%;
@@ -43,6 +56,10 @@ opacity: 0.8;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
 
 .control-panel label {
@@ -65,6 +82,10 @@ padding: 10px;
 margin: 10px;
 background: rgba(255, 255, 255, 0.8);
 box-sizing: border-box; 
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 .menu .menu-item {
 border: 2px solid rgba(0, 0, 0, 0.3); 
@@ -74,6 +95,10 @@ flex: 1;
 margin: 0 5px;
 background-color: rgba(255, 255, 255, 0.8); 
 font-size: 14px;
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 .shadow-item {
 border: 2px solid rgba(0, 0, 0, 0.3); 
@@ -108,22 +133,30 @@ border-radius: 3px;
 cursor: pointer;
 font-size: 14px;
 }
-.menu .menu-item.create-ball-item {
-flex: none;
+.ball-item {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    cursor: grab;
 }
-.menu .menu-item.ball-preview-item {
-flex: 1;
-margin-left: 10px;
-display: flex;
-align-items: center;
-justify-content: center;
+
+
+.ball-item:hover {
+    opacity: 0.8;
 }
+
+
 input[type="number"] {
 width: 100%;
 padding: 10px;
 border: 2px solid rgba(0, 0, 0, 0.3); 
 border-radius: 3px;
 box-sizing: border-box;
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 input[type="color"] {
 width: 100%;
@@ -131,6 +164,10 @@ padding: 0;
 border: none;
 background: none;
 cursor: pointer;
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 .hidden {
 display: none;
@@ -164,6 +201,10 @@ margin-bottom: 10px;
 border: 2px solid rgba(0, 0, 0, 0.3);
 border-radius: 3px;
 box-sizing: border-box;
+-webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+-moz-user-select: none;    /* Для Firefox */
+-ms-user-select: none;     /* Для Internet Explorer/Edge */
+user-select: none;         /* Современный стандарт */
 }
 #addMaterialMenu button {
 padding: 10px;
@@ -194,6 +235,10 @@ input[type="range"] {
     outline: none;
     opacity: 0.7;
     transition: opacity 0.2s;
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -204,6 +249,10 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     background: #4CAF50;
     cursor: pointer;
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -212,4 +261,8 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 50%;
     background: #4CAF50;
     cursor: pointer;
+    -webkit-user-select: none; /* Для WebKit-браузеров (Chrome, Safari) */
+    -moz-user-select: none;    /* Для Firefox */
+    -ms-user-select: none;     /* Для Internet Explorer/Edge */
+    user-select: none;         /* Современный стандарт */
 }
