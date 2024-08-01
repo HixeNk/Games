@@ -8,14 +8,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        // Определение фигур
         const shapes = [
-            new CustomShape([[70, 70], [70, 650], [1450, 650],[1450,70],[1000,70],[1000,300],[500,300],[500,70]], 'orange'),
-            new CustomShape([[700, 350], [800, 350],[870,420],[870,520],[800,590],[700,590],[630,520],[630,420]], 'lime'),
-            new CustomShape([[250, 120], [320, 170],[320,250],[250,300],[180,250],[180,170]], 'blue'),
-            new CustomShape([[250, 400],[350,400],[400,470],[300,570],[200,470]], 'red'),
-            new CustomShape([[1100,150],[1300,150],[1300,330],[1100,330]], 'black'),
-            new CustomShape([[1150,400],[1250,550],[1050,550]], 'purple')
+            new CustomShape([[70, 70], [70, 650], [1450, 650], [1450, 70], [1000, 70], [1000, 300], [500, 300], [500, 70]], 'orange'),
+            new CustomShape([[700, 350], [800, 350], [870, 420], [870, 520], [800, 590], [700, 590], [630, 520], [630, 420]], 'lime'),
+            new CustomShape([[250, 120], [320, 170], [320, 250], [250, 300], [180, 250], [180, 170]], 'blue'),
+            new CustomShape([[250, 400], [350, 400], [400, 470], [300, 570], [200, 470]], 'red'),
+            new CustomShape([[1100, 150], [1300, 150], [1300, 330], [1100, 330]], 'black'),
+            new CustomShape([[1150, 400], [1250, 550], [1050, 550]], 'purple')
         ];
+
+        const balls = [];
+        const controlPanel = new ControlPanel(balls);
+        let isPaused = false; // Переменная для управления паузой
 
         function isSafeToPlaceBall(x, y, radius, shapes) {
             for (let shape of shapes) {
@@ -33,9 +38,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
             return new Ball(x, y, radius, dx, dy, color);
         }
-
-        const balls = [];
-        const controlPanel = new ControlPanel(balls);
 
         function draw() {
             if (isPaused) return;
@@ -80,6 +82,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
         });
 
+        // Инициализация анимации
         draw();
     } else {
         console.error('Canvas element not found');

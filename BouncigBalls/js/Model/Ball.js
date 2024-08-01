@@ -27,10 +27,12 @@ class Ball {
 
     // Метод для обновления положения и обработки столкновений
     update(canvas, shapes, balls) {
+        if (isPaused) return; // Прекращаем выполнение, если пауза
+    
         for (let i = 0; i < this.timeMultiplier; i++) {
             this.handleCanvasCollision(canvas);
             this.handleBallCollision(balls);
-
+    
             for (let shape of shapes) {
                 if (this.insideShape === shape) {
                     this.handleInsideShapeCollision(shape);
@@ -38,11 +40,12 @@ class Ball {
                     this.handleOutsideShapeCollision(shape);
                 }
             }
-
+    
             this.x += this.dx;
             this.y += this.dy;
         }
     }
+    
 
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {

@@ -131,6 +131,7 @@ class ControlPanel {
 
     pauseBalls() {
         this.isPaused = true;
+        isPaused = true; // Установка глобального состояния
         this.pauseButton.style.display = 'none';
         this.playButton.style.display = 'block';
         this.menu.classList.remove('hidden');
@@ -138,12 +139,13 @@ class ControlPanel {
 
     playBalls() {
         this.isPaused = false;
+        isPaused = false; // Установка глобального состояния
         this.pauseButton.style.display = 'block';
         this.playButton.style.display = 'none';
         this.menu.classList.add('hidden');
-        if (typeof window.draw === 'function') {
-            window.draw();
-        }
+
+        // Перезапуск анимации
+        draw();
     }
 
     createBall() {
@@ -243,7 +245,7 @@ class ControlPanel {
             if (selectedBall) {
                 const x = event.clientX - offsetX;
                 const y = event.clientY - offsetY;
-                selectedBall.style.position = 'absolute'; // Убедитесь, что элемент имеет абсолютное позиционирование
+                selectedBall.style.position = 'absolute';
                 selectedBall.style.left = `${x}px`;
                 selectedBall.style.top = `${y}px`;
                 event.preventDefault();
@@ -262,8 +264,19 @@ class ControlPanel {
                 // Преобразование размеров и цвета для создания шарика на канвасе
                 const radius = parseFloat(selectedBall.style.width) / 2;
                 const color = selectedBall.style.backgroundColor;
-                const newBall = new Ball(ballX, ballY, radius, 0, 0, color);
-                
+
+                // Задаем случайные скорости для нового шарика
+                const speedRange = 2;
+                const dx = (Math.random() - 0.5) * speedRange;
+                const dy = (Math.random() - 0.5) * speedRange;
+
+                // Создание нового шарика с текущими настройками
+                const newBall = new Ball(ballX, ballY, radius, dx, dy, color);
+
+                // Применение текущих настроек упругости и скорости
+                newBall.elasticity = parseFloat(this.elasticitySelect.value);
+                newBall.timeMultiplier = parseFloat(this.speedSelect.value);
+
                 // Добавление нового шарика на канвас и в массив шариков
                 this.balls.push(newBall);
                 selectedBall.remove(); // Удаление шарика из контейнера
@@ -271,11 +284,12 @@ class ControlPanel {
                 // Обновление экрана
                 const ctx = canvas.getContext('2d');
                 this.updateCanvas(ctx);
-                
+
                 selectedBall = null;
             }
         });
     }
+    
 
     updateCanvas(ctx) {
         // Очистка канваса
@@ -285,4 +299,6 @@ class ControlPanel {
             ball.draw(ctx);
         }
     }
+
+    
 }
