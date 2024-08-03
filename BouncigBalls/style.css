@@ -266,3 +266,20 @@ input[type="range"]::-moz-range-thumb {
     -ms-user-select: none;     /* Для Internet Explorer/Edge */
     user-select: none;         /* Современный стандарт */
 }
+
+.context-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    z-index: 1000; /* Убедитесь, что меню находится выше остальных элементов */
+}
+
+.context-menu.hidden {
+    display: none;
+}
+
+.context-menu .menu-item {
+    margin: 5px 0;
+}

@@ -31,14 +31,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             return true;
         }
 
-        function generateSafeBall(x, y, radius, dx, dy, color, shapes) {
-            while (!isSafeToPlaceBall(x, y, radius, shapes)) {
-                x = Math.random() * canvas.width;
-                y = Math.random() * canvas.height;
-            }
-            return new Ball(x, y, radius, dx, dy, color);
-        }
-
         function draw() {
             if (isPaused) return;
 

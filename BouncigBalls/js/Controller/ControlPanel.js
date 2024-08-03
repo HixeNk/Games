@@ -22,15 +22,22 @@ class ControlPanel {
         this.materialNameInput = document.getElementById('materialName');
         this.materialMassSelect = document.getElementById('materialMass');
         this.materialTypeSelect = document.getElementById('materialType');
+        this.ballContainer = document.getElementById('ballContainer');
+        this.contextMenu = document.getElementById('contextMenu');
+        this.contextColor = document.getElementById('contextColor');
+        this.contextSizeRange = document.getElementById('contextSizeRange');
+        this.contextSizeValue = document.getElementById('contextSizeValue');
+        this.applyChangesButton = document.getElementById('applyChanges');
+        this.closeMenuButton = document.getElementById('closeMenu');
         this.timeMultiplier = 1;
-        this.isPaused = false; // Локальное состояние для управления паузой
+        this.isPaused = false;
 
         this.materialList = [{ name: 'Plastic', mass: 1 }];
         this.updateMaterialList();
 
         this.initEventListeners();
-
-        this.ballContainer = document.getElementById('ballContainer');
+        this.initContextMenuHandlers();
+        this.initBallClickHandler();
         this.initDragAndDrop();
 
         const controlPanel = document.querySelector('.control-panel');
@@ -60,6 +67,134 @@ class ControlPanel {
         this.cancelMaterialButton.addEventListener('click', () => this.cancelAddMaterial());
         this.saveMaterialButton.addEventListener('click', () => this.saveNewMaterial());
         this.sizeRange.addEventListener('input', () => this.updateSizeDisplay());
+    }
+
+    initContextMenuHandlers() {
+        this.applyChangesButton.addEventListener('click', () => this.applyChanges());
+        this.closeMenuButton.addEventListener('click', () => this.closeContextMenu());
+        this.contextSizeRange.addEventListener('input', () => this.updateContextSizeDisplay());
+    }
+
+    initBallClickHandler() {
+        document.getElementById('myCanvas').addEventListener('click', (event) => {
+            const { offsetX, offsetY } = event;
+            console.log('Клик по координатам:', offsetX, offsetY);
+            let clickedBall = null;
+            for (const ball of this.balls) {
+                if (ball.isClicked(offsetX, offsetY)) {
+                    console.log('Шарик выбран:', ball);
+                    clickedBall = ball;
+                    break;
+                }
+            }
+            if (clickedBall) {
+                this.selectedBall = clickedBall;
+                console.log('Открытие контекстного меню для:', clickedBall);
+                this.openContextMenu(event.clientX, event.clientY, clickedBall);
+            } else {
+                console.log('Шарик не выбран');
+            }
+        });
+
+        // Удален обработчик правого клика
+    }
+
+    removeBall(ballToRemove) {
+        this.balls = this.balls.filter(ball => ball !== ballToRemove);
+
+        const ctx = document.getElementById('myCanvas').getContext('2d');
+        this.updateCanvas(ctx);
+
+        const ballContainer = document.getElementById('ballContainer');
+        ballContainer.innerHTML = '';
+        for (let ball of this.balls) {
+            ball.renderInMenu(ballContainer);
+        }
+    }
+
+    initDragAndDrop() {
+        let selectedBall = null;
+        let offsetX, offsetY;
+
+        this.ballContainer.addEventListener('mousedown', (event) => {
+            if (event.target.classList.contains('ball-item')) {
+                selectedBall = event.target;
+                const rect = selectedBall.getBoundingClientRect();
+                offsetX = event.clientX - rect.left;
+                offsetY = event.clientY - rect.top;
+                selectedBall.style.cursor = 'grabbing';
+                event.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', (event) => {
+            if (selectedBall) {
+                const x = event.clientX - offsetX;
+                const y = event.clientY - offsetY;
+                selectedBall.style.position = 'absolute';
+                selectedBall.style.left = `${x}px`;
+                selectedBall.style.top = `${y}px`;
+                event.preventDefault();
+            }
+        });
+
+        document.addEventListener('mouseup', (event) => {
+            if (selectedBall) {
+                selectedBall.style.cursor = 'grab';
+                const canvas = document.getElementById('myCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const ballX = event.clientX - rect.left;
+                const ballY = event.clientY - rect.top;
+
+                const radius = parseFloat(selectedBall.style.width) / 2;
+                const color = selectedBall.style.backgroundColor;
+
+                const speedRange = 2;
+                const dx = (Math.random() - 0.5) * speedRange;
+                const dy = (Math.random() - 0.5) * speedRange;
+
+                const newBall = new Ball(ballX, ballY, radius, dx, dy, color);
+                newBall.elasticity = parseFloat(this.elasticitySelect.value);
+                newBall.timeMultiplier = parseFloat(this.speedSelect.value);
+
+                this.balls.push(newBall);
+                selectedBall.remove();
+
+                const ctx = canvas.getContext('2d');
+                this.updateCanvas(ctx);
+
+                selectedBall = null;
+            }
+        });
+    }
+
+    openContextMenu(x, y, ball) {
+        this.contextMenu.style.left = `${x}px`;
+        this.contextMenu.style.top = `${y}px`;
+        this.contextMenu.classList.remove('hidden');
+
+        this.contextColor.value = ball.color;
+        this.contextSizeRange.value = ball.radius;
+        this.contextSizeValue.textContent = ball.radius;
+        this.selectedBall = ball;
+    }
+
+    closeContextMenu() {
+        this.contextMenu.classList.add('hidden');
+        this.selectedBall = null;
+    }
+
+    applyChanges() {
+        if (this.selectedBall) {
+            this.selectedBall.color = this.contextColor.value;
+            this.selectedBall.radius = parseFloat(this.contextSizeRange.value);
+            this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
+        }
+        this.closeContextMenu();
+    }
+
+    updateContextSizeDisplay() {
+        this.contextSizeValue.textContent = this.contextSizeRange.value;
     }
 
     setInitialPosition(element) {
@@ -102,21 +237,22 @@ class ControlPanel {
         const speed = parseFloat(this.speedSelect.value);
         this.timeMultiplier = speed;
 
-        for (let ball of this.balls) {
-            ball.elasticity = elasticity;
-            ball.timeMultiplier = this.timeMultiplier;
-
-            const dampingFactorLow = 0.98;
-            const dampingFactorHigh = 0.85;
-
-            if (elasticity < 0.8 && speed < 3) {
-                ball.dx *= dampingFactorLow;
-                ball.dy *= dampingFactorLow;
+        if (elasticity >= 1) {
+            for (let ball of this.balls) {
+                ball.elasticity = elasticity;
+                ball.timeMultiplier = this.timeMultiplier;
+                ball.dx = ball.dx;
+                ball.dy = ball.dy;
             }
+        } else {
+            let dampingFactor = (speed / 10) * (1 - elasticity);
+            dampingFactor = Math.max(0.1, Math.min(dampingFactor, 1.0));
 
-            if (speed >= 3 && elasticity < 0.8) {
-                ball.dx *= dampingFactorHigh;
-                ball.dy *= dampingFactorHigh;
+            for (let ball of this.balls) {
+                ball.elasticity = elasticity;
+                ball.timeMultiplier = this.timeMultiplier;
+                ball.dx *= dampingFactor;
+                ball.dy *= dampingFactor;
             }
         }
 
@@ -131,7 +267,7 @@ class ControlPanel {
 
     pauseBalls() {
         this.isPaused = true;
-        isPaused = true; // Установка глобального состояния
+        isPaused = true;
         this.pauseButton.style.display = 'none';
         this.playButton.style.display = 'block';
         this.menu.classList.remove('hidden');
@@ -139,43 +275,34 @@ class ControlPanel {
 
     playBalls() {
         this.isPaused = false;
-        isPaused = false; // Установка глобального состояния
+        isPaused = false;
         this.pauseButton.style.display = 'block';
         this.playButton.style.display = 'none';
         this.menu.classList.add('hidden');
-
-        // Перезапуск анимации
         draw();
     }
 
     createBall() {
         const radius = parseFloat(this.sizeRange.value);
         const color = this.colorInput.value;
-        const material = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || {name: 'Plastic', mass: 1};
-        
-        // Создание нового шарика
+        const material = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || { name: 'Plastic', mass: 1 };
+
         const newBall = new Ball(
-            Math.random() * window.innerWidth, // Начальная позиция X
-            Math.random() * window.innerHeight, // Начальная позиция Y
+            Math.random() * window.innerWidth,
+            Math.random() * window.innerHeight,
             radius,
-            (Math.random() - 0.5) * 2, // Начальная скорость по X
-            (Math.random() - 0.5) * 2, // Начальная скорость по Y
+            (Math.random() - 0.5) * 2,
+            (Math.random() - 0.5) * 2,
             color,
             material
         );
-    
-        // Получение контейнера
+
         const ballContainer = document.getElementById('ballContainer');
-    
-        // Удаление старого шарика, если он существует
         while (ballContainer.firstChild) {
             ballContainer.removeChild(ballContainer.firstChild);
         }
-    
-        // Отображение нового шарика в меню
+
         newBall.renderInMenu(ballContainer);
-    
-        // Обновление значений
         this.updateValues();
     }
 
@@ -224,81 +351,11 @@ class ControlPanel {
         this.menu.classList.remove('hidden');
     }
 
-    initDragAndDrop() {
-        let selectedBall = null;
-        let offsetX, offsetY;
-
-        // Обработчик нажатия мыши на шарик
-        this.ballContainer.addEventListener('mousedown', (event) => {
-            if (event.target.classList.contains('ball-item')) {
-                selectedBall = event.target;
-                const rect = selectedBall.getBoundingClientRect();
-                offsetX = event.clientX - rect.left;
-                offsetY = event.clientY - rect.top;
-                selectedBall.style.cursor = 'grabbing';
-                event.preventDefault();
-            }
-        });
-
-        // Обработчик движения мыши
-        document.addEventListener('mousemove', (event) => {
-            if (selectedBall) {
-                const x = event.clientX - offsetX;
-                const y = event.clientY - offsetY;
-                selectedBall.style.position = 'absolute';
-                selectedBall.style.left = `${x}px`;
-                selectedBall.style.top = `${y}px`;
-                event.preventDefault();
-            }
-        });
-
-        // Обработчик отпускания мыши
-        document.addEventListener('mouseup', (event) => {
-            if (selectedBall) {
-                selectedBall.style.cursor = 'grab';
-                const canvas = document.getElementById('myCanvas');
-                const rect = canvas.getBoundingClientRect();
-                const ballX = event.clientX - rect.left;
-                const ballY = event.clientY - rect.top;
-
-                // Преобразование размеров и цвета для создания шарика на канвасе
-                const radius = parseFloat(selectedBall.style.width) / 2;
-                const color = selectedBall.style.backgroundColor;
-
-                // Задаем случайные скорости для нового шарика
-                const speedRange = 2;
-                const dx = (Math.random() - 0.5) * speedRange;
-                const dy = (Math.random() - 0.5) * speedRange;
-
-                // Создание нового шарика с текущими настройками
-                const newBall = new Ball(ballX, ballY, radius, dx, dy, color);
-
-                // Применение текущих настроек упругости и скорости
-                newBall.elasticity = parseFloat(this.elasticitySelect.value);
-                newBall.timeMultiplier = parseFloat(this.speedSelect.value);
-
-                // Добавление нового шарика на канвас и в массив шариков
-                this.balls.push(newBall);
-                selectedBall.remove(); // Удаление шарика из контейнера
-
-                // Обновление экрана
-                const ctx = canvas.getContext('2d');
-                this.updateCanvas(ctx);
-
-                selectedBall = null;
-            }
-        });
-    }
-    
-
     updateCanvas(ctx) {
-        // Очистка канваса
         const canvas = document.getElementById('myCanvas');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let ball of this.balls) {
             ball.draw(ctx);
         }
     }
-
-    
 }

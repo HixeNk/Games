@@ -272,6 +272,12 @@ class Ball {
         }
     }
 
+    isClicked(mouseX, mouseY) {
+        const dx = this.x - mouseX;
+        const dy = this.y - mouseY;
+        return Math.sqrt(dx * dx + dy * dy) <= this.radius;
+    }
+
     renderInMenu(container) {
         const ballElement = document.createElement('div');
         ballElement.classList.add('ball-item');

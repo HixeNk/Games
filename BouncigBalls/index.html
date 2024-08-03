@@ -97,5 +97,25 @@
 
     <img id="pause" src="./images/pause_button.png" alt="Pause" />
     <img id="play" src="./images/play_button.png" alt="Play" class="hidden" />
+
+    <!-- Новое меню для изменения цвета и размера -->
+    <div class="context-menu hidden" id="contextMenu">
+        <div class="menu-item">
+            <label for="contextColor">Color</label>
+            <input type="color" id="contextColor">
+        </div>
+        <div class="menu-item">
+            <label for="contextSize">Size</label>
+            <input type="range" id="contextSizeRange" min="10" max="20" step="1">
+            <span id="contextSizeValue">15</span>
+        </div>
+        <div class="menu-item">
+            <button id="applyChanges">Apply</button>
+            <button id="deleteBall">Delete Ball</button>
+            <button id="closeMenu">Close</button>
+        </div>
+    </div>
+    
+
 </body>
 </html>
