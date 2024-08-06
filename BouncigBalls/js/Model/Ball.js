@@ -14,20 +14,21 @@ class Ball {
         this.timeMultiplier = 1;
         this.material = material;
         this.mass = material.mass;
+        this.id = Math.random().toString(36).substr(2, 9);
     }
 
     // Метод для отрисовки шарика
     draw(ctx) {
-        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.closePath();
+        ctx.fillStyle = this.color;
         ctx.fill();
+        ctx.closePath();
     }
 
     // Метод для обновления положения и обработки столкновений
     update(canvas, shapes, balls) {
-        if (isPaused) return; // Прекращаем выполнение, если пауза
+        if (isPaused) return; 
     
         for (let i = 0; i < this.timeMultiplier; i++) {
             this.handleCanvasCollision(canvas);
@@ -272,10 +273,9 @@ class Ball {
         }
     }
 
-    isClicked(mouseX, mouseY) {
-        const dx = this.x - mouseX;
-        const dy = this.y - mouseY;
-        return Math.sqrt(dx * dx + dy * dy) <= this.radius;
+    isClicked(x, y) {
+        const distance = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
+        return distance <= this.radius;
     }
 
     renderInMenu(container) {
@@ -284,8 +284,8 @@ class Ball {
         ballElement.style.width = `${this.radius * 2}px`;
         ballElement.style.height = `${this.radius * 2}px`;
         ballElement.style.backgroundColor = this.color;
-        ballElement.style.borderRadius = '50%'; // Придание форме шара
-        ballElement.style.position = 'relative'; // Позиционирование внутри контейнера
+        ballElement.style.borderRadius = '50%'; 
+        ballElement.style.position = 'relative'; 
     
         container.appendChild(ballElement);
     }

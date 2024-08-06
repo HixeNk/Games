@@ -33,18 +33,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         function draw() {
             if (isPaused) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
+            const ctx = document.getElementById('myCanvas').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
+            // Отрисовка фигур
             for (let shape of shapes) {
                 shape.draw(ctx);
             }
-
-            for (let ball of balls) {
-                ball.update(canvas, shapes, balls);
+        
+            // Обновление и отрисовка шариков
+            for (let ball of controlPanel.balls) {
+                ball.update(canvas, shapes, controlPanel.balls);
                 ball.draw(ctx);
             }
-
+        
+            // Запуск следующего кадра анимации
             requestAnimationFrame(draw);
         }
 

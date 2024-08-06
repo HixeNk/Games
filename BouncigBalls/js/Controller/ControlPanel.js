@@ -49,7 +49,6 @@ class ControlPanel {
         this.setInitialPosition(controlPanel);
         this.updateValues();
 
-        // Setup the ballContainer to ignore drag events
         this.ballContainer.addEventListener('mousedown', (event) => {
             event.stopPropagation();
         });
@@ -78,8 +77,9 @@ class ControlPanel {
     initBallClickHandler() {
         document.getElementById('myCanvas').addEventListener('click', (event) => {
             const { offsetX, offsetY } = event;
-            console.log('Клик по координатам:', offsetX, offsetY);
+            console.log('Левый клик по координатам:', offsetX, offsetY);
             let clickedBall = null;
+
             for (const ball of this.balls) {
                 if (ball.isClicked(offsetX, offsetY)) {
                     console.log('Шарик выбран:', ball);
@@ -87,34 +87,47 @@ class ControlPanel {
                     break;
                 }
             }
+
             if (clickedBall) {
                 this.selectedBall = clickedBall;
-                console.log('Открытие контекстного меню для:', clickedBall);
+                console.log('Открытие контекстного меню для шарика:', clickedBall);
                 this.openContextMenu(event.clientX, event.clientY, clickedBall);
             } else {
                 console.log('Шарик не выбран');
             }
         });
 
-        // Удален обработчик правого клика
-    }
+        document.getElementById('myCanvas').addEventListener('contextmenu', (event) => {
+            event.preventDefault(); // Предотвращаем стандартное контекстное меню
+            const { offsetX, offsetY } = event;
+            console.log('Правый клик по координатам:', offsetX, offsetY);
+            let clickedBall = null;
 
-    removeBall(ballToRemove) {
-        this.balls = this.balls.filter(ball => ball !== ballToRemove);
+            for (const ball of this.balls) {
+                if (ball.isClicked(offsetX, offsetY)) {
+                    clickedBall = ball;
+                    console.log('Шарик под курсором:', clickedBall);
+                    break;
+                }
+            }
 
-        const ctx = document.getElementById('myCanvas').getContext('2d');
-        this.updateCanvas(ctx);
-
-        const ballContainer = document.getElementById('ballContainer');
-        ballContainer.innerHTML = '';
-        for (let ball of this.balls) {
-            ball.renderInMenu(ballContainer);
-        }
+            if (clickedBall) {
+                // Проверяем, действительно ли этот шарик в списке balls
+                console.log('Шарики до удаления:', this.balls);
+                this.balls = this.balls.filter(ball => ball.id !== clickedBall.id);
+                console.log('Шарики после удаления:', this.balls);
+                this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
+                console.log('Шарик удалён:', clickedBall);
+            } else {
+                console.log('Шарик не найден для удаления');
+            }
+        });
     }
 
     initDragAndDrop() {
         let selectedBall = null;
         let offsetX, offsetY;
+        let isDraggingNewBall = false;
 
         this.ballContainer.addEventListener('mousedown', (event) => {
             if (event.target.classList.contains('ball-item')) {
@@ -123,12 +136,13 @@ class ControlPanel {
                 offsetX = event.clientX - rect.left;
                 offsetY = event.clientY - rect.top;
                 selectedBall.style.cursor = 'grabbing';
+                isDraggingNewBall = true;
                 event.preventDefault();
             }
         });
 
         document.addEventListener('mousemove', (event) => {
-            if (selectedBall) {
+            if (selectedBall && isDraggingNewBall) {
                 const x = event.clientX - offsetX;
                 const y = event.clientY - offsetY;
                 selectedBall.style.position = 'absolute';
@@ -139,7 +153,7 @@ class ControlPanel {
         });
 
         document.addEventListener('mouseup', (event) => {
-            if (selectedBall) {
+            if (selectedBall && isDraggingNewBall) {
                 selectedBall.style.cursor = 'grab';
                 const canvas = document.getElementById('myCanvas');
                 const rect = canvas.getBoundingClientRect();
@@ -163,6 +177,7 @@ class ControlPanel {
                 const ctx = canvas.getContext('2d');
                 this.updateCanvas(ctx);
 
+                isDraggingNewBall = false;
                 selectedBall = null;
             }
         });
@@ -359,3 +374,6 @@ class ControlPanel {
         }
     }
 }
+
+
+
