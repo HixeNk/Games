@@ -3,6 +3,7 @@ let isPaused = false;
 class ControlPanel {
     constructor(balls) {
         this.balls = balls;
+        this.shapes = [];
         this.speedSelect = document.getElementById('speed');
         this.elasticitySelect = document.getElementById('elasticity');
         this.pauseButton = document.getElementById('pause');
@@ -21,6 +22,7 @@ class ControlPanel {
         this.saveMaterialButton = document.getElementById('saveMaterial');
         this.materialNameInput = document.getElementById('materialName');
         this.materialMassSelect = document.getElementById('materialMass');
+        this.materialFrictionSelect = document.getElementById('materialFriction');
         this.materialTypeSelect = document.getElementById('materialType');
         this.ballContainer = document.getElementById('ballContainer');
         this.contextMenu = document.getElementById('contextMenu');
@@ -29,6 +31,12 @@ class ControlPanel {
         this.contextSizeValue = document.getElementById('contextSizeValue');
         this.applyChangesButton = document.getElementById('applyChanges');
         this.closeMenuButton = document.getElementById('closeMenu');
+        this.shapeMenu = document.getElementById('shapeMenu');
+        this.shapeButton = document.getElementById('shapeButton');
+        this.shapeInput = document.getElementById('shapeInput');
+        this.drawShapeButton = document.getElementById('drawShape');
+        this.closeShapeMenuButton = document.getElementById('closeShapeMenu');
+
         this.timeMultiplier = 1;
         this.isPaused = false;
 
@@ -39,12 +47,15 @@ class ControlPanel {
         this.initContextMenuHandlers();
         this.initBallClickHandler();
         this.initDragAndDrop();
+        this.initShapes();
 
         const controlPanel = document.querySelector('.control-panel');
         this.setupDraggableElement(controlPanel);
         this.setupDraggableElement(this.menu);
         this.setupDraggableElement(this.materialMenu);
         this.setupDraggableElement(this.addMaterialMenu);
+        this.setupDraggableElement(this.shapeMenu);
+
 
         this.setInitialPosition(controlPanel);
         this.updateValues();
@@ -66,6 +77,10 @@ class ControlPanel {
         this.cancelMaterialButton.addEventListener('click', () => this.cancelAddMaterial());
         this.saveMaterialButton.addEventListener('click', () => this.saveNewMaterial());
         this.sizeRange.addEventListener('input', () => this.updateSizeDisplay());
+        this.drawShapeButton.addEventListener('click', () => this.drawShape());
+        this.closeShapeMenuButton.addEventListener('click', () => this.closeShapeMenu());
+        this.shapeButton.addEventListener('click', () => this.showShapeMenu());
+
     }
 
     initContextMenuHandlers() {
@@ -218,35 +233,96 @@ class ControlPanel {
     }
 
     setupDraggableElement(element) {
-        let dragging = false;
+        let isDragging = false;
         let offsetX, offsetY;
 
-        element.addEventListener('mousedown', (event) => {
-            if (event.target.tagName !== 'SELECT' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'BUTTON') {
-                dragging = true;
-                offsetX = event.clientX - element.getBoundingClientRect().left;
-                offsetY = event.clientY - element.getBoundingClientRect().top;
+        const onMouseDown = (event) => {
+            // Проверяем, если клик происходит на input-элементах в shapeMenu, не начинаем перетаскивание
+            if (event.target.tagName === 'INPUT' && element.id === 'shapeMenu') {
+                return; // Выход из функции, не давая возможности начать перетаскивание
+            }
+            if (event.target.tagName === 'SELECT' || event.target.closest('select')) {
+                return; // Выход из функции, не давая возможности начать перетаскивание
+            }
+
+            isDragging = true;
+            const rect = element.getBoundingClientRect();
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            element.style.cursor = 'grabbing';
+            event.preventDefault();
+        };
+
+        const onMouseMove = (event) => {
+            if (isDragging) {
+                const x = event.clientX - offsetX;
+                const y = event.clientY - offsetY;
+                element.style.position = 'absolute';
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
                 event.preventDefault();
             }
-        });
+        };
 
-        document.addEventListener('mousemove', (event) => {
-            if (dragging) {
-                element.style.left = `${event.clientX - offsetX}px`;
-                element.style.top = `${event.clientY - offsetY}px`;
-                event.preventDefault();
-            }
-        });
+        const onMouseUp = () => {
+            isDragging = false;
+            element.style.cursor = 'grab';
+        };
 
-        document.addEventListener('mouseup', () => {
-            dragging = false;
-        });
+        element.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
     }
 
     updateSizeDisplay() {
         this.sizeValue.textContent = this.sizeRange.value;
     }
+    showShapeMenu() {
+        this.shapeMenu.classList.remove('hidden');
+    }
 
+    closeShapeMenu() {
+        this.shapeMenu.classList.add('hidden');
+    }
+    initShapes() {
+        // Define initial shapes here
+        this.shapes = [
+            new CustomShape([[70, 70], [70, 650], [1450, 650], [1450, 70], [1000, 70], [1000, 300], [500, 300], [500, 70]], 'orange'),
+            new CustomShape([[700, 350], [800, 350], [870, 420], [870, 520], [800, 590], [700, 590], [630, 520], [630, 420]], 'lime'),
+            new CustomShape([[250, 120], [320, 170], [320, 250], [250, 300], [180, 250], [180, 170]], 'blue'),
+            new CustomShape([[250, 400], [350, 400], [400, 470], [300, 570], [200, 470]], 'red'),
+            new CustomShape([[1100, 150], [1300, 150], [1300, 330], [1100, 330]], 'black'),
+            new CustomShape([[1150, 400], [1250, 550], [1050, 550]], 'purple')
+        ];
+    }
+    drawShape() {
+        const points = [];
+        
+        // Собираем координаты точек
+        for (let i = 1; i <= 16; i += 2) {
+            const x = parseFloat(document.getElementById(`shapeInput${i}`).value);
+            const y = parseFloat(document.getElementById(`shapeInput${i+1}`).value);
+    
+            if (!isNaN(x) && !isNaN(y)) {
+                points.push([x, y]);
+            }
+        }
+    
+        if (points.length >= 3) { // Минимум 3 точки для создания фигуры
+            const color = document.getElementById('colorShape').value; // Получаем цвет из input
+            const newShape = new CustomShape(points, color); // Передаём цвет в конструктор фигуры
+    
+            // Добавляем новую фигуру в список и перерисовываем канвас
+            this.shapes.push(newShape);
+            this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
+    
+            this.closeShapeMenu();
+        } else {
+            alert('Введите хотя бы 3 пары координат для создания фигуры.');
+        }
+    }
+    
+    
     updateValues() {
         const elasticity = parseFloat(this.elasticitySelect.value);
         const speed = parseFloat(this.speedSelect.value);
@@ -300,7 +376,7 @@ class ControlPanel {
     createBall() {
         const radius = parseFloat(this.sizeRange.value);
         const color = this.colorInput.value;
-        const material = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || { name: 'Plastic', mass: 1 };
+        const material = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || { name: 'Plastic', mass: 1, friction: 0 };
 
         const newBall = new Ball(
             Math.random() * window.innerWidth,
@@ -339,14 +415,13 @@ class ControlPanel {
     saveNewMaterial() {
         const name = this.materialNameInput.value;
         const mass = parseFloat(this.materialMassSelect.value);
+        const friction = parseFloat(this.materialFrictionSelect.value); // Get friction value
 
-        if (name && !isNaN(mass)) {
-            const newMaterial = { name, mass };
+        if (name) {
+            const newMaterial = { name, mass, friction };
             this.materialList.push(newMaterial);
             this.updateMaterialList();
-            this.showMainMenu();
-        } else {
-            alert("Please enter valid material name and mass.");
+            this.showMaterialMenu();
         }
     }
 
@@ -372,7 +447,11 @@ class ControlPanel {
         for (let ball of this.balls) {
             ball.draw(ctx);
         }
+        for (let shape of this.shapes) { // Use this.shapes
+            shape.draw(ctx);
+        }
     }
+    
 }
 
 

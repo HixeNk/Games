@@ -58,11 +58,56 @@
         </div>
         <div class="menu-item create-ball-item shadow-item">
             <button id="createBall">Create Ball</button>
+            <button id="shapeButton">Shape</button>
         </div>
         <div class="menu-item ball-container shadow-item" id="ballContainer"></div>
 
         
     </div>
+    <div class="menu hidden" id="shapeMenu">
+        <div class="menu-item shadow-item">
+            <label for="shapeInput">Enter Shape Coordinates</label>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput1" placeholder="x1">
+                <input type="text" id="shapeInput2" placeholder="y1">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput3" placeholder="x2">
+                <input type="text" id="shapeInput4" placeholder="y2">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput5" placeholder="x3">
+                <input type="text" id="shapeInput6" placeholder="y3">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput7" placeholder="x4">
+                <input type="text" id="shapeInput8" placeholder="y4">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput9" placeholder="x5">
+                <input type="text" id="shapeInput10" placeholder="y5">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput11" placeholder="x6">
+                <input type="text" id="shapeInput12" placeholder="y6">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput13" placeholder="x7">
+                <input type="text" id="shapeInput14" placeholder="y7">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput15" placeholder="x8">
+                <input type="text" id="shapeInput16" placeholder="y8">
+            </div>
+        </div>
+        <div class="menu-item shadow-item">
+            <label for="color">Color</label>
+            <input type="color" id="colorShape" name="color">
+            <button id="drawShape">Draw Shape</button>
+            <button id="closeShapeMenu">Cancel</button>
+        </div>
+    </div>
+    
     
     <div class="menu hidden" id="materialMenu">
         <div class="menu-item material-list shadow-item">
@@ -89,6 +134,14 @@
                 <option value="5">5</option>
             </select>
         </div>
+        <div class="menu-item shadow-item">
+            <label for="materialFriction">Friction</label>
+            <select id="materialFriction">
+                <option value="0.1" selected>0</option>
+                <option value="1.0">1</option>
+            </select>
+        </div>
+        
         <div class="menu-item shadow-item" id="materialButtonContainer">
             <button id="saveMaterial">Save</button>
             <button id="cancelMaterial">Cancel</button>

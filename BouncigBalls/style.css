@@ -283,3 +283,30 @@ input[type="range"]::-moz-range-thumb {
 .context-menu .menu-item {
     margin: 5px 0;
 }
+
+.coordinate-pair {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.coordinate-pair input {
+    width: calc(50% - 5px); /* Учитываем отступы между полями */
+}
+
+input[type="text"]#shapeInput {
+    width: 100%; 
+    padding: 5px;
+    margin: 2px 0;
+    box-sizing: border-box;
+    -webkit-user-select: text; /* Разрешить выделение текста внутри */
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    pointer-events: auto; /* Делает элемент восприимчивым к событиям мыши */
+}
+
+
+#shapeMenu {
+    cursor: grab;
+}

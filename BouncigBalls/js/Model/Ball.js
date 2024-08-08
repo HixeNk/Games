@@ -1,6 +1,6 @@
 // Класс для шариков
 class Ball {
-    constructor(x, y, radius, dx, dy, color = 'red', material = {name: 'Plastic', mass: 1}) {
+    constructor(x, y, radius, dx, dy, color = 'red', material = {name: 'Plastic', mass: 1, friction: 0 }) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -12,8 +12,9 @@ class Ball {
         this.elasticity = 1.0;
         this.insideShape = null;
         this.timeMultiplier = 1;
-        this.material = material;
-        this.mass = material.mass;
+        this.material = material; // Материал должен быть сохранен
+        this.mass = material.mass; // Устанавливаем массу и другие свойства на основе материала
+        this.friction = material.friction;
         this.id = Math.random().toString(36).substr(2, 9);
     }
 
@@ -51,14 +52,15 @@ class Ball {
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {
         if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-            this.dx = -this.dx * this.elasticity;
+            this.dx = -this.dx * this.elasticity; // Применение упругости при столкновении
             this.x = Math.max(this.radius, Math.min(this.x, canvas.width - this.radius));
         }
         if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-            this.dy = -this.dy * this.elasticity;
+            this.dy = -this.dy * this.elasticity; // Применение упругости при столкновении
             this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius));
         }
     }
+    
 
     // Метод обработки столкновений с другими шариками
     handleBallCollision(balls) {
@@ -79,43 +81,60 @@ class Ball {
 
     // Метод столкновения между шариками
     resolveBallCollision(ball) {
-        // Вектор нормали
-        const normal = { x: ball.x - this.x, y: ball.y - this.y };
-        const distance = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-        const unitNormal = { x: normal.x / distance, y: normal.y / distance };
-        const unitTangent = { x: -unitNormal.y, y: unitNormal.x };
-
-        // Скорости вдоль нормали и касательной
-        const thisNormalVelocity = unitNormal.x * this.dx + unitNormal.y * this.dy;
-        const thisTangentVelocity = unitTangent.x * this.dx + unitTangent.y * this.dy;
-        const ballNormalVelocity = unitNormal.x * ball.dx + unitNormal.y * ball.dy;
-        const ballTangentVelocity = unitTangent.x * ball.dx + unitTangent.y * ball.dy;
-
-        // Новые скорости вдоль нормали
-        const thisNewNormalVelocity = ((thisNormalVelocity * (this.mass - ball.mass) + 2 * ball.mass * ballNormalVelocity) / (this.mass + ball.mass));
-        const ballNewNormalVelocity = ((ballNormalVelocity * (ball.mass - this.mass) + 2 * this.mass * thisNormalVelocity) / (this.mass + ball.mass));
-
-        // Применение новых скоростей
-        this.dx = unitNormal.x * thisNewNormalVelocity + unitTangent.x * thisTangentVelocity;
-        this.dy = unitNormal.y * thisNewNormalVelocity + unitTangent.y * thisTangentVelocity;
-        ball.dx = unitNormal.x * ballNewNormalVelocity + unitTangent.x * ballTangentVelocity;
-        ball.dy = unitNormal.y * ballNewNormalVelocity + unitTangent.y * ballTangentVelocity;
-
-        // Коррекция пересечения
-        const overlap = (this.radius + ball.radius) - distance;
-        const correction = overlap / 2;
-        this.x -= correction * unitNormal.x;
-        this.y -= correction * unitNormal.y;
-        ball.x += correction * unitNormal.x;
-        ball.y += correction * unitNormal.y;
-
-        // Коррекция скорости в зависимости от упругости
-        const elasticityFactor = 0.9; 
-        this.dx *= Math.max(this.elasticity, elasticityFactor);
-        this.dy *= Math.max(this.elasticity, elasticityFactor);
-        ball.dx *= Math.max(ball.elasticity, elasticityFactor);
-        ball.dy *= Math.max(ball.elasticity, elasticityFactor);
+        // Проверка на пересечение
+        console.log("resolveBallCollision method called");
+        const dx = this.x - ball.x;
+        const dy = this.y - ball.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const overlap = this.radius + ball.radius - distance;
+    
+        if (overlap > 0) {
+            // Нормализуем вектор расстояния
+            const angle = Math.atan2(dy, dx);
+            const overlapCorrection = (this.radius + ball.radius - distance) / 2;
+            const targetX = this.x + Math.cos(angle) * overlapCorrection;
+            const targetY = this.y + Math.sin(angle) * overlapCorrection;
+            
+            // Перемещаем шары
+            const ax = (targetX - this.x) * (this.mass / (this.mass + ball.mass));
+            const ay = (targetY - this.y) * (this.mass / (this.mass + ball.mass));
+            this.x += ax;
+            this.y += ay;
+            ball.x -= ax;
+            ball.y -= ay;
+            
+            // Нормализуем вектор нормали
+            const normalX = (this.x - ball.x) / distance;
+            const normalY = (this.y - ball.y) / distance;
+            
+            // Рассчитываем относительную скорость
+            const relativeVelocityX = ball.dx - this.dx;
+            const relativeVelocityY = ball.dy - this.dy;
+            const dotProduct = normalX * relativeVelocityX + normalY * relativeVelocityY;
+            
+            if (dotProduct > 0) {
+                const coefficientOfRestitution = Math.min(this.material.friction, ball.material.friction);
+                const scalar = (1 + coefficientOfRestitution) * dotProduct / (this.mass + ball.mass);
+                
+                this.dx += scalar * this.mass * normalX;
+                this.dy += scalar * this.mass * normalY;
+                ball.dx -= scalar * ball.mass * normalX;
+                ball.dy -= scalar * ball.mass * normalY;
+                
+                // Применяем трение
+                this.dx *= (1 - this.friction);
+                this.dy *= (1 - this.friction);
+                ball.dx *= (1 - ball.friction);
+                ball.dy *= (1 - ball.friction);
+            }
+        }
+    
+        // Логирование для отладки
+        console.log(`Ball 1 - Position: (${this.x}, ${this.y}), Velocity: (${this.dx}, ${this.dy}), Friction: ${this.friction}`);
+        console.log(`Ball 2 - Position: (${ball.x}, ${ball.y}), Velocity: (${ball.dx}, ${ball.dy}), Friction: ${ball.friction}`);
     }
+    
+
 
     // Метод обработки столкновений вне фигуры
     handleOutsideShapeCollision(shape) {
@@ -272,6 +291,8 @@ class Ball {
             this.resolveVertexCollision(shape.points[i]);
         }
     }
+    
+    
 
     isClicked(x, y) {
         const distance = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
