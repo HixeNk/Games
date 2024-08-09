@@ -1,6 +1,5 @@
-// Класс для шариков
 class Ball {
-    constructor(x, y, radius, dx, dy, color = 'red', material = {name: 'Plastic', mass: 1, friction: 0 }) {
+    constructor(x, y, radius, dx, dy, color = 'red', material = {name: 'Plastic', mass: 1 }) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -12,10 +11,12 @@ class Ball {
         this.elasticity = 1.0;
         this.insideShape = null;
         this.timeMultiplier = 1;
-        this.material = material; // Материал должен быть сохранен
-        this.mass = material.mass; // Устанавливаем массу и другие свойства на основе материала
-        this.friction = material.friction;
+        this.selectedMaterial = null;
+        this.material = material;
+        this.mass = material.mass; // Устанавливаем массу на основе материала
         this.id = Math.random().toString(36).substr(2, 9);
+        
+        
     }
 
     // Метод для отрисовки шарика
@@ -29,7 +30,7 @@ class Ball {
 
     // Метод для обновления положения и обработки столкновений
     update(canvas, shapes, balls) {
-        if (isPaused) return; 
+        if (isPaused) return;
     
         for (let i = 0; i < this.timeMultiplier; i++) {
             this.handleCanvasCollision(canvas);
@@ -43,11 +44,11 @@ class Ball {
                 }
             }
     
+            // Обновление положения шарика с учетом его скорости и массы
             this.x += this.dx;
             this.y += this.dy;
         }
     }
-    
 
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {
@@ -60,7 +61,6 @@ class Ball {
             this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius));
         }
     }
-    
 
     // Метод обработки столкновений с другими шариками
     handleBallCollision(balls) {
@@ -82,7 +82,6 @@ class Ball {
     // Метод столкновения между шариками
     resolveBallCollision(ball) {
         // Проверка на пересечение
-        console.log("resolveBallCollision method called");
         const dx = this.x - ball.x;
         const dy = this.y - ball.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -113,28 +112,15 @@ class Ball {
             const dotProduct = normalX * relativeVelocityX + normalY * relativeVelocityY;
             
             if (dotProduct > 0) {
-                const coefficientOfRestitution = Math.min(this.material.friction, ball.material.friction);
-                const scalar = (1 + coefficientOfRestitution) * dotProduct / (this.mass + ball.mass);
+                const scalar = (1 + this.elasticity) * dotProduct / (this.mass + ball.mass);
                 
                 this.dx += scalar * this.mass * normalX;
                 this.dy += scalar * this.mass * normalY;
                 ball.dx -= scalar * ball.mass * normalX;
                 ball.dy -= scalar * ball.mass * normalY;
-                
-                // Применяем трение
-                this.dx *= (1 - this.friction);
-                this.dy *= (1 - this.friction);
-                ball.dx *= (1 - ball.friction);
-                ball.dy *= (1 - ball.friction);
             }
         }
-    
-        // Логирование для отладки
-        console.log(`Ball 1 - Position: (${this.x}, ${this.y}), Velocity: (${this.dx}, ${this.dy}), Friction: ${this.friction}`);
-        console.log(`Ball 2 - Position: (${ball.x}, ${ball.y}), Velocity: (${ball.dx}, ${ball.dy}), Friction: ${ball.friction}`);
     }
-    
-
 
     // Метод обработки столкновений вне фигуры
     handleOutsideShapeCollision(shape) {
@@ -291,8 +277,6 @@ class Ball {
             this.resolveVertexCollision(shape.points[i]);
         }
     }
-    
-    
 
     isClicked(x, y) {
         const distance = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
@@ -310,5 +294,4 @@ class Ball {
     
         container.appendChild(ballElement);
     }
-    
 }
