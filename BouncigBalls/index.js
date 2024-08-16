@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const canvas = document.getElementById('myCanvas');
     if (canvas) {
-        const ctx = canvas.getContext('2d');
+     
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -13,28 +13,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         let isPaused = false;
 
+        // Функция отрисовки шариков
         function draw() {
             if (isPaused) return;
         
             const ctx = document.getElementById('myCanvas').getContext('2d');
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         
-            // Отрисовка фигур
-            for (let shape of controlPanel.shapes) { // Use controlPanel.shapes
+            for (let shape of controlPanel.shapes) { 
                 shape.draw(ctx);
             }
         
-            // Обновление и отрисовка шариков
             for (let ball of controlPanel.balls) {
                 ball.update(canvas, controlPanel.shapes, controlPanel.balls);
                 ball.draw(ctx);
             }
         
-            // Запуск следующего кадра анимации
             requestAnimationFrame(draw);
         }
 
-        // Make draw globally accessible
         window.draw = draw;
 
         canvas.addEventListener('contextmenu', function(event) {

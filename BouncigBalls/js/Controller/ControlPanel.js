@@ -1,5 +1,6 @@
 let isPaused = false;
 
+// Класс для всех элементов интерфейса
 class ControlPanel {
     constructor(balls) {
         this.balls = balls;
@@ -89,15 +90,14 @@ class ControlPanel {
         this.contextSizeRange.addEventListener('input', () => this.updateContextSizeDisplay());
     }
 
+    // Открытие контекстного меню шарика и удаление шарика 
     initBallClickHandler() {
         document.getElementById('myCanvas').addEventListener('click', (event) => {
             const { offsetX, offsetY } = event;
-            console.log('Левый клик по координатам:', offsetX, offsetY);
             let clickedBall = null;
 
             for (const ball of this.balls) {
                 if (ball.isClicked(offsetX, offsetY)) {
-                    console.log('Шарик выбран:', ball);
                     clickedBall = ball;
                     break;
                 }
@@ -105,40 +105,31 @@ class ControlPanel {
 
             if (clickedBall) {
                 this.selectedBall = clickedBall;
-                console.log('Открытие контекстного меню для шарика:', clickedBall);
                 this.openContextMenu(event.clientX, event.clientY, clickedBall);
-            } else {
-                console.log('Шарик не выбран');
             }
         });
 
         document.getElementById('myCanvas').addEventListener('contextmenu', (event) => {
             event.preventDefault();
             const { offsetX, offsetY } = event;
-            console.log('Правый клик по координатам:', offsetX, offsetY);
             let clickedBall = null;
 
             for (const ball of this.balls) {
                 if (ball.isClicked(offsetX, offsetY)) {
                     clickedBall = ball;
-                    console.log('Шарик под курсором:', clickedBall);
                     break;
                 }
             }
 
             if (clickedBall) {
 
-                console.log('Шарики до удаления:', this.balls);
                 this.balls = this.balls.filter(ball => ball.id !== clickedBall.id);
-                console.log('Шарики после удаления:', this.balls);
                 this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
-                console.log('Шарик удалён:', clickedBall);
-            } else {
-                console.log('Шарик не найден для удаления');
             }
         });
     }
 
+    // Перетаскивание шарика из меню на поле
     initDragAndDrop() {
         let selectedBall = null;
         let offsetX, offsetY;
@@ -198,6 +189,7 @@ class ControlPanel {
         });
     }
 
+    // Контекстное меню в открытом состоянии
     openContextMenu(x, y, ball) {
         this.contextMenu.style.left = `${x}px`;
         this.contextMenu.style.top = `${y}px`;
@@ -209,11 +201,13 @@ class ControlPanel {
         this.selectedBall = ball;
     }
 
+    // Контекстное меню в закрытом состоянии
     closeContextMenu() {
         this.contextMenu.classList.add('hidden');
         this.selectedBall = null;
     }
 
+    // Кнопка подтвержедения изменений в контекстном меню шарика
     applyChanges() {
         if (this.selectedBall) {
             this.selectedBall.color = this.contextColor.value;
@@ -232,6 +226,7 @@ class ControlPanel {
         element.style.top = '10px';
     }
 
+    // Устанавливаем, какие элементы интерфейса можно перетаскивать, а какие нельзя.
     setupDraggableElement(element) {
         let isDragging = false;
         let offsetX, offsetY;
@@ -283,6 +278,8 @@ class ControlPanel {
     closeShapeMenu() {
         this.shapeMenu.classList.add('hidden');
     }
+
+    // Отрисовка стандартных фигур на поле
     initShapes() {
      
         this.shapes = [
@@ -294,6 +291,8 @@ class ControlPanel {
             new CustomShape([[1150, 400], [1250, 550], [1050, 550]], 'purple')
         ];
     }
+    
+    // Отрисовка фигур через координаты установленные в shapeInput
     drawShape() {
         const points = [];
         
@@ -307,7 +306,7 @@ class ControlPanel {
             }
         }
     
-        if (points.length >= 3) { 
+        if (points.length >= 2) { 
             const color = document.getElementById('colorShape').value;
             const newShape = new CustomShape(points, color); 
     
@@ -317,29 +316,34 @@ class ControlPanel {
     
             this.closeShapeMenu();
         } else {
-            alert('Введите хотя бы 3 пары координат для создания фигуры.');
+            alert('Введите хотя бы 2 пары координат для создания фигуры.');
         }
     }
     
-    
+    // Обновление шариков в зависимости от величин параметров
     updateValues() {
         const elasticity = parseFloat(this.elasticitySelect.value);
         const speed = parseFloat(this.speedSelect.value);
         this.timeMultiplier = speed;
     
-        for (let ball of this.balls) {
-            ball.elasticity = elasticity;
-            ball.timeMultiplier = this.timeMultiplier;
-            
-        
-            ball.mass = ball.material.mass;
-
-            
-            ball.dx = ball.initialDx * speed;
-            ball.dy = ball.initialDy * speed;
+        if (elasticity >= 1) {
+            for (let ball of this.balls) {
+                ball.elasticity = elasticity;
+                ball.timeMultiplier = this.timeMultiplier;
+                ball.dx = ball.dx;
+                ball.dy = ball.dy; 
+            }
+        } else {
+            let dampingFactor = (speed / 10) * (1 - elasticity);
+            dampingFactor = Math.max(0.1, Math.min(dampingFactor, 1.0)); 
+            for (let ball of this.balls) {
+                ball.elasticity = elasticity;
+                ball.timeMultiplier = this.timeMultiplier;
+                ball.dx *= dampingFactor;
+                ball.dy *= dampingFactor;
+            }
         }
-    
-       
+
         for (let ball1 of this.balls) {
             for (let ball2 of this.balls) {
                 if (ball1 !== ball2 && ball1.isCollidingWith(ball2)) {
@@ -349,7 +353,7 @@ class ControlPanel {
         }
     }
     
-
+    // Кнопка паузы
     pauseBalls() {
         this.isPaused = true;
         isPaused = true;
@@ -358,6 +362,7 @@ class ControlPanel {
         this.menu.classList.remove('hidden');
     }
 
+    // Кнопка воспроизведения
     playBalls() {
         this.isPaused = false;
         isPaused = false;
@@ -367,6 +372,7 @@ class ControlPanel {
         draw();
     }
 
+    // Создание шарика
     createBall() {
         const radius = parseFloat(this.sizeRange.value);
         const color = this.colorInput.value;
@@ -394,15 +400,12 @@ class ControlPanel {
         this.updateValues();
     }
     
-
     showMaterialMenu() {
         this.menu.classList.add('hidden');
         this.materialMenu.classList.remove('hidden');
-        
         this.selectedMaterial = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || { name: 'Plastic', mass: 1 };
     }
     
-
     showAddMaterialMenu() {
         this.menu.classList.add('hidden');
         this.addMaterialMenu.classList.remove('hidden');
@@ -448,7 +451,6 @@ class ControlPanel {
         }
     }
     
-
     showMainMenu() {
         this.materialMenu.classList.add('hidden');
         this.addMaterialMenu.classList.add('hidden');

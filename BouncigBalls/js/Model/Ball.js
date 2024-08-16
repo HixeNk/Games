@@ -1,3 +1,4 @@
+// Класс для шариков
 class Ball {
     constructor(x, y, radius, dx, dy, color = 'red', material = {name: 'Plastic', mass: 1 }) {
         this.x = x;
@@ -13,7 +14,7 @@ class Ball {
         this.timeMultiplier = 1;
         this.selectedMaterial = null;
         this.material = material;
-        this.mass = material.mass; // Устанавливаем массу на основе материала
+        this.mass = material.mass; 
         this.id = Math.random().toString(36).substr(2, 9);
         
         
@@ -44,7 +45,6 @@ class Ball {
                 }
             }
     
-            // Обновление положения шарика с учетом его скорости и массы
             this.x += this.dx;
             this.y += this.dy;
         }
@@ -53,11 +53,11 @@ class Ball {
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {
         if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-            this.dx = -this.dx * this.elasticity; // Применение упругости при столкновении
+            this.dx = -this.dx * this.elasticity;
             this.x = Math.max(this.radius, Math.min(this.x, canvas.width - this.radius));
         }
         if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-            this.dy = -this.dy * this.elasticity; // Применение упругости при столкновении
+            this.dy = -this.dy * this.elasticity; 
             this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius));
         }
     }
@@ -81,20 +81,18 @@ class Ball {
 
     // Метод столкновения между шариками
     resolveBallCollision(ball) {
-        // Проверка на пересечение
+ 
         const dx = this.x - ball.x;
         const dy = this.y - ball.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const overlap = this.radius + ball.radius - distance;
     
         if (overlap > 0) {
-            // Нормализуем вектор расстояния
             const angle = Math.atan2(dy, dx);
             const overlapCorrection = (this.radius + ball.radius - distance) / 2;
             const targetX = this.x + Math.cos(angle) * overlapCorrection;
             const targetY = this.y + Math.sin(angle) * overlapCorrection;
             
-            // Перемещаем шары
             const ax = (targetX - this.x) * (this.mass / (this.mass + ball.mass));
             const ay = (targetY - this.y) * (this.mass / (this.mass + ball.mass));
             this.x += ax;
@@ -102,11 +100,9 @@ class Ball {
             ball.x -= ax;
             ball.y -= ay;
             
-            // Нормализуем вектор нормали
             const normalX = (this.x - ball.x) / distance;
             const normalY = (this.y - ball.y) / distance;
             
-            // Рассчитываем относительную скорость
             const relativeVelocityX = ball.dx - this.dx;
             const relativeVelocityY = ball.dy - this.dy;
             const dotProduct = normalX * relativeVelocityX + normalY * relativeVelocityY;
@@ -283,6 +279,7 @@ class Ball {
         return distance <= this.radius;
     }
 
+    // Отрисовка шарика в меню
     renderInMenu(container) {
         const ballElement = document.createElement('div');
         ballElement.classList.add('ball-item');
