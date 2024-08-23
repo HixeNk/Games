@@ -84,11 +84,13 @@ class ControlPanel {
 
 }
 
-    initContextMenuHandlers() {
-        this.applyChangesButton.addEventListener('click', () => this.applyChanges());
-        this.closeMenuButton.addEventListener('click', () => this.closeContextMenu());
-        this.contextSizeRange.addEventListener('input', () => this.updateContextSizeDisplay());
-    }
+initContextMenuHandlers() {
+    this.applyChangesButton.addEventListener('click', () => this.applyChanges());
+    this.closeMenuButton.addEventListener('click', () => this.closeContextMenu());
+    this.contextSizeRange.addEventListener('input', () => this.updateContextSizeDisplay());
+    document.getElementById('deleteBall').addEventListener('click', () => this.deleteSelectedBall()); // Новый обработчик
+}
+
 
     // Открытие контекстного меню шарика и удаление шарика 
     initBallClickHandler() {
@@ -109,24 +111,6 @@ class ControlPanel {
             }
         });
 
-        document.getElementById('myCanvas').addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            const { offsetX, offsetY } = event;
-            let clickedBall = null;
-
-            for (const ball of this.balls) {
-                if (ball.isClicked(offsetX, offsetY)) {
-                    clickedBall = ball;
-                    break;
-                }
-            }
-
-            if (clickedBall) {
-
-                this.balls = this.balls.filter(ball => ball.id !== clickedBall.id);
-                this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
-            }
-        });
     }
 
     // Перетаскивание шарика из меню на поле
@@ -134,10 +118,12 @@ class ControlPanel {
         let selectedBall = null;
         let offsetX, offsetY;
         let isDraggingNewBall = false;
-
+    
         this.ballContainer.addEventListener('mousedown', (event) => {
             if (event.target.classList.contains('ball-item')) {
                 selectedBall = event.target;
+    
+                // Вычисляем смещение относительно меню
                 const rect = selectedBall.getBoundingClientRect();
                 offsetX = event.clientX - rect.left;
                 offsetY = event.clientY - rect.top;
@@ -146,49 +132,59 @@ class ControlPanel {
                 event.preventDefault();
             }
         });
-
+    
         document.addEventListener('mousemove', (event) => {
             if (selectedBall && isDraggingNewBall) {
-                const x = event.clientX - offsetX;
-                const y = event.clientY - offsetY;
+                // Получаем текущее смещение меню
+                const menuRect = this.menu.getBoundingClientRect();
+                
+                // Учитываем смещение меню при перемещении шарика
+                const x = event.clientX - offsetX - menuRect.left;
+                const y = event.clientY - offsetY - menuRect.top;
+    
                 selectedBall.style.position = 'absolute';
                 selectedBall.style.left = `${x}px`;
                 selectedBall.style.top = `${y}px`;
                 event.preventDefault();
             }
         });
-
+    
         document.addEventListener('mouseup', (event) => {
             if (selectedBall && isDraggingNewBall) {
                 selectedBall.style.cursor = 'grab';
                 const canvas = document.getElementById('myCanvas');
                 const rect = canvas.getBoundingClientRect();
-                const ballX = event.clientX - rect.left;
-                const ballY = event.clientY - rect.top;
-
+    
+                // Учитываем смещение относительно холста
+                const ballX = event.clientX - rect.left - offsetX;
+                const ballY = event.clientY - rect.top - offsetY;
+    
                 const radius = parseFloat(selectedBall.style.width) / 2;
                 const color = selectedBall.style.backgroundColor;
-
+    
                 const speedRange = 2;
                 const dx = (Math.random() - 0.5) * speedRange;
                 const dy = (Math.random() - 0.5) * speedRange;
-
+    
+                // Создаем новый шарик на холсте
                 const newBall = new Ball(ballX, ballY, radius, dx, dy, color);
                 newBall.elasticity = parseFloat(this.elasticitySelect.value);
                 newBall.timeMultiplier = parseFloat(this.speedSelect.value);
-
+    
                 this.balls.push(newBall);
                 selectedBall.remove();
-
+    
                 const ctx = canvas.getContext('2d');
                 this.updateCanvas(ctx);
-
+    
                 isDraggingNewBall = false;
                 selectedBall = null;
             }
         });
     }
-
+    
+    
+    
     // Контекстное меню в открытом состоянии
     openContextMenu(x, y, ball) {
         this.contextMenu.style.left = `${x}px`;
@@ -216,6 +212,15 @@ class ControlPanel {
         }
         this.closeContextMenu();
     }
+
+    deleteSelectedBall() {
+        if (this.selectedBall) {
+            this.balls = this.balls.filter(ball => ball !== this.selectedBall);
+            this.updateCanvas(document.getElementById('myCanvas').getContext('2d'));
+            this.closeContextMenu();
+        }
+    }
+    
 
     updateContextSizeDisplay() {
         this.contextSizeValue.textContent = this.contextSizeRange.value;
