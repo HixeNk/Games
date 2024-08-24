@@ -59,7 +59,8 @@ opacity: 0.8;
     -webkit-user-select: none; 
     -moz-user-select: none;   
     -ms-user-select: none;     
-    user-select: none;        
+    user-select: none;     
+    cursor: grab;   
 }
 
 .control-panel label {
@@ -85,7 +86,8 @@ box-sizing: border-box;
 -webkit-user-select: none; 
 -moz-user-select: none;    
 -ms-user-select: none;     
-user-select: none;        
+user-select: none;      
+cursor: grab;  
 }
 .menu .menu-item {
 border: 2px solid rgba(0, 0, 0, 0.3); 
@@ -176,19 +178,25 @@ display: none;
 border: 2px solid rgba(0, 0, 0, 0.3); 
 border-radius: 3px;
 padding: 10px;
+cursor: grab;
 }
 #addMaterialMenu {
-position: absolute;
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%);
-padding: 20px;
-background: rgba(255, 255, 255, 0.8);
-border: 2px solid rgba(0, 0, 0, 0.3);
-border-radius: 5px;
-box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-z-index: 2000; 
+    position: absolute;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    cursor: grab; /* Указываем курсор для перетаскивания */
 }
+
+
+#addMaterialMenu.dragging {
+    cursor: grabbing; /* Меняем курсор при перетаскивании */
+    opacity: 0.8; /* Можно добавить эффект прозрачности во время перетаскивания */
+}
+
 #addMaterialMenu label {
 display: block;
 margin-bottom: 5px;

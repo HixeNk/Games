@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         // Функция отрисовки шариков
         function draw() {
-            if (isPaused) return;
-        
+            if (controlPanel.isPaused) return;
+            
             const ctx = document.getElementById('myCanvas').getContext('2d');
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
             requestAnimationFrame(draw);
         }
+        
 
         window.draw = draw;
 

@@ -15,9 +15,8 @@ class Ball {
         this.selectedMaterial = null;
         this.material = material;
         this.mass = material.mass; 
+        this.maxSpeed = 10; 
         this.id = Math.random().toString(36).substr(2, 9);
-        
-        
     }
 
     // Метод для отрисовки шарика
@@ -47,8 +46,19 @@ class Ball {
     
             this.x += this.dx;
             this.y += this.dy;
+            this.limitSpeed();
         }
     }
+
+
+    // Метод для ограничения скорости
+limitSpeed() {
+    const speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+    if (speed > this.maxSpeed) {
+        this.dx *= this.maxSpeed / speed;
+        this.dy *= this.maxSpeed / speed;
+    }
+}
 
     // Метод обработки столкновения с границами канваса
     handleCanvasCollision(canvas) {
