@@ -71,6 +71,7 @@ class ControlPanel {
         }
     }
 
+
     initContextMenuHandlers() {
         const deleteButton = document.getElementById('deleteBall');
         if (deleteButton) {
@@ -93,7 +94,6 @@ class ControlPanel {
                         break;
                     }
                 }
-
                 if (clickedBall) {
                     this.selectedBall = clickedBall;
                     this.openContextMenu(event.clientX, event.clientY, clickedBall);
@@ -102,12 +102,13 @@ class ControlPanel {
         } else {
             console.error('Canvas element not found.');
         }
+
     }
 
     initDragAndDrop() {
         let selectedBall = null;
         let offsetX, offsetY;
-    
+
         if (this.ballContainer) {
             this.ballContainer.addEventListener('mousedown', (event) => {
                 if (event.target.classList.contains('ball-item')) {
@@ -169,8 +170,6 @@ class ControlPanel {
             console.error('Ball container not found.');
         }
     }
-    
-    
     openContextMenu(x, y, ball) {
         if (this.contextMenu) {
             this.contextMenu.style.left = `${x}px`;
@@ -211,6 +210,7 @@ class ControlPanel {
             this.closeContextMenu();
         }
     }
+
 
     updateContextSizeDisplay() {
         if (this.contextSizeValue) {
