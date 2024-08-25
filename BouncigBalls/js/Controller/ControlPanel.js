@@ -68,6 +68,7 @@ class ControlPanel {
             this.sizeSlider.getValue = () => parseFloat(this.sizeSlider.slider.value);
     }
 
+
     initContextMenuHandlers() {
         const deleteButton = document.getElementById('deleteBall');
             deleteButton.addEventListener('click', () => this.deleteSelectedBall());
@@ -85,7 +86,6 @@ class ControlPanel {
                         break;
                     }
                 }
-
                 if (clickedBall) {
                     this.selectedBall = clickedBall;
                     this.openContextMenu(event.clientX, event.clientY, clickedBall);
@@ -197,11 +197,13 @@ class ControlPanel {
         this.updateContextSizeDisplay();
         this.selectedBall = ball; 
     }
+
     // Закрытие контекстного меню
     closeContextMenu() {
         this.contextMenu.classList.add('hidden');
         this.selectedBall = null; 
     }
+
     // Подтверждение изменения параметров шарика в контектсном меню
     applyChanges() {
         if (this.selectedBall) {
@@ -211,6 +213,7 @@ class ControlPanel {
         }
         this.closeContextMenu();
     }
+
     // Удаление шарика в контекстном меню
     deleteSelectedBall() {
         if (this.selectedBall) {
@@ -219,6 +222,7 @@ class ControlPanel {
             this.closeContextMenu();
         }
     }
+
     // Изменение размеров шарика в контекстном меню
     updateContextSizeDisplay() {
             this.contextSizeValue.textContent = this.contextSizeRange.getValue();
