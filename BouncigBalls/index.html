@@ -16,6 +16,7 @@
 <body>
     <canvas id="myCanvas"></canvas>
 
+  <!--Панель ControlPanel -->  
     <div class="control-panel">
         <label for="speed">Speed</label>
         <select id="speed">
@@ -41,6 +42,7 @@
         </select>
     </div>
 
+    <!--Панель GameMenu для создания шариков-->
     <div class="menu hidden" id="gameMenu">
         <div class="menu-item size-item shadow-item">
             <label for="size">Size</label>
@@ -65,8 +67,9 @@
         </div>
         <div class="menu-item ball-container shadow-item" id="ballContainer"></div>
 
-        
     </div>
+
+    <!--Панель создания фигур-->
     <div class="menu hidden" id="shapeMenu">
         <div class="menu-item shadow-item">
             <label for="shapeInput">Enter Shape Coordinates</label>
@@ -111,7 +114,7 @@
         </div>
     </div>
     
-    
+    <!--Панель материалов-->
     <div class="menu hidden" id="materialMenu">
         <div class="menu-item material-list shadow-item">
             <label for="materialType">Available Materials</label>
@@ -122,6 +125,7 @@
         </div>
     </div>
     
+    <!--Панель создания материалов-->
     <div class="menu hidden" id="addMaterialMenu">
         <div class="menu-item shadow-item">
             <label for="materialName">Material Name</label>
@@ -147,6 +151,7 @@
     <img id="pause" src="./images/pause_button.png" alt="Pause" />
     <img id="play" src="./images/play_button.png" alt="Play" class="hidden" />
 
+    <!--Контекстное меню-->
     <div class="context-menu hidden" id="contextMenu">
         <div class="menu-item">
             <label for="contextColor">Color</label>
@@ -158,15 +163,14 @@
             <span id="contextSizeValue">15</span>
         </div>
         <div class="menu-item">
-            <button id="deleteBall">Delete Ball</button> <!-- Добавленная кнопка -->
             <button id="applyChanges">Apply</button>
             <button id="closeMenu">Close</button>
+            <button id="deleteBall">Delete Ball</button> 
+        </div>
+        <div class="menu-item">
+            <button id="StartEvent">Start Event</button>
+            <button id="EndEvent">End Event</button>
         </div>
     </div>
-    
-    <script>
-
-    </script>
-
 </body>
 </html>

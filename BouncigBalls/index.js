@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 ball.update(canvas, controlPanel.shapes, controlPanel.balls);
                 ball.draw(ctx);
             }
-        
+            if (ctx) {
+                controlPanel.updateCanvas(ctx);
+            }
             requestAnimationFrame(draw);
         }
         
@@ -58,7 +60,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
         });
 
-        // Инициализация анимации
         draw();
     } else {
         console.error('Canvas element not found');

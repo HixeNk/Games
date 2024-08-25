@@ -1,5 +1,5 @@
 let isPaused = false;
-
+// Класс панелей
 class ControlPanel {
     constructor(balls) {
         this.balls = balls;
@@ -7,8 +7,10 @@ class ControlPanel {
         this.timeMultiplier = 1;
         this.isPaused = false;
         this.materialList = [];
-        this.isDraggingMenu = false; // Отслеживание перетаскивания меню
-        this.isDraggingBall = false; // Отслеживание перетаскивания шарика
+        this.isDraggingMenu = false; 
+        this.isDraggingBall = false;
+        this.bamTexts = [];
+        this.selectedBall = null;
         this.initElements();
         this.initEventListeners();
         this.initContextMenuHandlers();
@@ -21,19 +23,15 @@ class ControlPanel {
         this.updateValues();
 
         const controlPanel = document.querySelector('.control-panel');
-        if (controlPanel) {
-            this.setupDraggableElement(controlPanel);
-            this.setInitialPosition(controlPanel);
-        } else {
-            console.error('Control panel element not found.');
-        }
+        this.setupDraggableElement(controlPanel);
+        this.setInitialPosition(controlPanel);
+       
     }
 
     initElements() {
         this.speedSlider = new SliderButton('speed', () => this.updateValues());
         this.elasticitySlider = new SliderButton('elasticity', () => this.updateValues());
         this.toggleButton = new ToggleButton('play', 'pause', () => this.playBalls(), () => this.pauseBalls());
-
         this.menu = document.getElementById('gameMenu');
         this.materialMenu = document.getElementById('materialMenu');
         this.addMaterialMenu = document.getElementById('addMaterialMenu');
@@ -60,29 +58,23 @@ class ControlPanel {
         this.shapeInput = document.getElementById('shapeInput');
         this.drawShapeButton = new Button('drawShape', () => this.drawShape());
         this.closeShapeMenuButton = new Button('closeShapeMenu', () => this.closeShapeMenu());
+        this.startEventButton = document.getElementById('StartEvent');
+        this.startEventButton= new Button('StartEvent', () => this.startEvent());
+        this.endEventButton = document.getElementById('EndEvent');
+        this.endEventButton= new Button('EndEvent', () => this.endEvent());
     }
 
     initEventListeners() {
-        // Ensure the size slider's getValue method is set up correctly
-        if (this.sizeSlider) {
             this.sizeSlider.getValue = () => parseFloat(this.sizeSlider.slider.value);
-        } else {
-            console.error('Size slider not initialized.');
-        }
     }
 
     initContextMenuHandlers() {
         const deleteButton = document.getElementById('deleteBall');
-        if (deleteButton) {
             deleteButton.addEventListener('click', () => this.deleteSelectedBall());
-        } else {
-            console.error('Delete button not found.');
-        }
     }
-
+    // Распознование шарика, по которому будет вызываться ContextMenu
     initBallClickHandler() {
         const canvas = document.getElementById('myCanvas');
-        if (canvas) {
             canvas.addEventListener('click', (event) => {
                 const { offsetX, offsetY } = event;
                 let clickedBall = null;
@@ -99,16 +91,12 @@ class ControlPanel {
                     this.openContextMenu(event.clientX, event.clientY, clickedBall);
                 }
             });
-        } else {
-            console.error('Canvas element not found.');
-        }
     }
 
+    // Перетаскивание шарика
     initDragAndDrop() {
         let selectedBall = null;
         let offsetX, offsetY;
-    
-        if (this.ballContainer) {
             this.ballContainer.addEventListener('mousedown', (event) => {
                 if (event.target.classList.contains('ball-item')) {
                     selectedBall = event.target;
@@ -116,7 +104,7 @@ class ControlPanel {
                     offsetX = event.clientX - rect.left;
                     offsetY = event.clientY - rect.top;
                     selectedBall.style.cursor = 'grabbing';
-                    this.isDraggingBall = true; // Начинаем перетаскивание шарика
+                    this.isDraggingBall = true; 
                     event.preventDefault();
                 }
             });
@@ -135,11 +123,11 @@ class ControlPanel {
     
             document.addEventListener('mouseup', (event) => {
                 if (selectedBall && this.isDraggingBall) {
-                    this.isDraggingBall = false; // Заканчиваем перетаскивание шарика
+                    this.isDraggingBall = false; 
                     selectedBall.style.cursor = 'grab';
     
                     const canvas = document.getElementById('myCanvas');
-                    if (canvas) {
+                   
                         const rect = canvas.getBoundingClientRect();
                         const ballX = event.clientX - rect.left - offsetX;
                         const ballY = event.clientY - rect.top - offsetY;
@@ -159,42 +147,62 @@ class ControlPanel {
     
                         const ctx = canvas.getContext('2d');
                         this.updateCanvas(ctx);
-                    } else {
-                        console.error('Canvas element not found.');
-                    }
+                 
                     selectedBall = null;
                 }
             });
-        } else {
-            console.error('Ball container not found.');
-        }
+     
     }
     
+    // Кнопка начала события шарика
+    startEvent() {
+        if (this.selectedBall) {
+        this.selectedBall.onCollision = (x, y) => {
+            this.drawBamText(x, y);
+        };}  
+    }
+
+    // Кнопка завершения события шарика
+    endEvent() {
+         if (this.selectedBall) {
+             this.selectedBall.onCollision = null; 
+         }
+    }
+    // Отображение текста BAM на канвасе
+    drawBamText(x, y) {
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
     
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'red';
+        ctx.fillText('BAM', x, y);
+        const bamText = {
+            x: x,
+            y: y,
+            width: ctx.measureText('BAM').width,
+            height: 24,
+            startTime: Date.now(),  
+        };
+        this.bamTexts.push(bamText);
+    }
+    
+    // Открытие контекстного меню
     openContextMenu(x, y, ball) {
-        if (this.contextMenu) {
-            this.contextMenu.style.left = `${x}px`;
-            this.contextMenu.style.top = `${y}px`;
-            this.contextMenu.classList.remove('hidden');
+        this.contextMenu.style.left = `${x}px`;
+        this.contextMenu.style.top = `${y}px`;
+        this.contextMenu.classList.remove('hidden');
 
-            this.contextColor.value = ball.color;
-            this.contextSizeRange.slider.value = ball.radius;
-            this.updateContextSizeDisplay();
-            this.selectedBall = ball;
-        } else {
-            console.error('Context menu not found.');
-        }
+        this.contextColor.value = ball.color;
+        this.contextSizeRange.slider.value = ball.radius;
+        this.updateContextSizeDisplay();
+        this.selectedBall = ball; 
     }
-
+    // Закрытие контекстного меню
     closeContextMenu() {
-        if (this.contextMenu) {
-            this.contextMenu.classList.add('hidden');
-            this.selectedBall = null;
-        } else {
-            console.error('Context menu not found.');
-        }
+        this.contextMenu.classList.add('hidden');
+        this.selectedBall = null; 
     }
-
+    // Подтверждение изменения параметров шарика в контектсном меню
     applyChanges() {
         if (this.selectedBall) {
             this.selectedBall.color = this.contextColor.value;
@@ -203,7 +211,7 @@ class ControlPanel {
         }
         this.closeContextMenu();
     }
-
+    // Удаление шарика в контекстном меню
     deleteSelectedBall() {
         if (this.selectedBall) {
             this.balls = this.balls.filter(ball => ball !== this.selectedBall);
@@ -211,26 +219,18 @@ class ControlPanel {
             this.closeContextMenu();
         }
     }
-
+    // Изменение размеров шарика в контекстном меню
     updateContextSizeDisplay() {
-        if (this.contextSizeValue) {
             this.contextSizeValue.textContent = this.contextSizeRange.getValue();
-        } else {
-            console.error('Context size value element not found.');
-        }
     }
-
+    // Установка изначальной позиции для панелей gameMenu
     setInitialPosition(element) {
-        if (element) {
             element.style.position = 'absolute';
-            element.style.left = `${window.innerWidth - element.offsetWidth}px`;  // Устанавливаем начальное положение по горизонтали
-            element.style.top = '0px';  // Устанавливаем начальное положение по вертикали
-        } else {
-            console.error('Element for initial position not found.');
-        }
+            element.style.left = `${window.innerWidth - element.offsetWidth}px`;  
+            element.style.top = '0px'; 
     }
     
-    
+    // Установка перетаскиваемых панелей
     setupDraggableElements() {
         const elements = [
             this.menu,
@@ -241,17 +241,12 @@ class ControlPanel {
         elements.forEach(element => this.setupDraggableElement(element));
     }
     
+    // Перетаскивание панелей
     setupDraggableElement(element) {
-        if (!element) {
-            console.error('Element not found for dragging.');
-            return;
-        }
-    
         let offsetX, offsetY;
         let isDragging = false;
     
         element.addEventListener('mousedown', (event) => {
-            // Если клик произошел по шарику, не начинаем перетаскивание панели
             if (event.target.classList.contains('ball-item')) {
                 return;
             }
@@ -259,17 +254,15 @@ class ControlPanel {
             const isInteractiveElement = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName);
     
             if (isInteractiveElement) {
-                return; // Прерываем перетаскивание, если кликнули по интерактивному элементу
+                return; 
             }
     
             const rect = element.getBoundingClientRect();
             offsetX = event.clientX - rect.left;
             offsetY = event.clientY - rect.top;
             isDragging = true;
-            element.style.cursor = 'grabbing'; // Устанавливаем курсор на grabbing
+            element.style.cursor = 'grabbing'; 
             element.classList.add('dragging'); 
-    
-            // Устанавливаем полупрозрачность при начале перетаскивания
             element.style.opacity = '0.5';
     
             event.preventDefault();
@@ -289,42 +282,29 @@ class ControlPanel {
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
-                element.style.cursor = 'grab'; // Возвращаем курсор на grab
+                element.style.cursor = 'grab';
                 element.classList.remove('dragging');
-    
-                // Восстанавливаем непрозрачность после завершения перетаскивания
                 element.style.opacity = '1';
             }
         });
     }
-    
-    
-    
+    // Ползунок размеров шарика
     updateSizeDisplay() {
         const sizeValue = document.getElementById('sizeValue');
-        if (sizeValue) {
             sizeValue.textContent = this.sizeSlider.getValue();
-        } else {
-            console.error('Size value element not found.');
-        }
     }
-
+    
+    // Открытие панели фигур
     showShapeMenu() {
-        if (this.shapeMenu) {
             this.shapeMenu.classList.remove('hidden');
-        } else {
-            console.error('Shape menu not found.');
-        }
     }
 
+    // Закрытие панели фигур
     closeShapeMenu() {
-        if (this.shapeMenu) {
             this.shapeMenu.classList.add('hidden');
-        } else {
-            console.error('Shape menu not found.');
-        }
     }
 
+    // Стандартные фигуры shapes
     initShapes() {
         this.shapes = [
             new CustomShape([[70, 70], [70, 650], [1450, 650], [1450, 70], [1000, 70], [1000, 300], [500, 300], [500, 70]], 'orange'),
@@ -336,6 +316,7 @@ class ControlPanel {
         ];
     }
 
+    // Отрисовака новых фигур по координатам
     drawShape() {
         const points = [];
 
@@ -361,44 +342,49 @@ class ControlPanel {
         }
     }
 
-    updateValues() {
-        const elasticity = parseFloat(this.elasticitySlider.getValue());
-        const speed = parseFloat(this.speedSlider.getValue());
-        this.timeMultiplier = speed;
+// Обновление значений в панели управления
+updateValues() {
+    const elasticity = parseFloat(this.elasticitySlider.getValue());
+    let speed = parseFloat(this.speedSlider.getValue());
+
+    const maxSpeed = 2; 
+    const speedLimit = Math.min(speed, maxSpeed); 
+
+    this.timeMultiplier = speed;
+
+    for (let ball of this.balls) {
+        ball.elasticity = elasticity;
+        ball.timeMultiplier = this.timeMultiplier;
 
         if (elasticity >= 1) {
-            for (let ball of this.balls) {
-                ball.elasticity = elasticity;
-                ball.timeMultiplier = this.timeMultiplier;
-                ball.dx = ball.dx;
-                ball.dy = ball.dy;
-            }
+            const scaleFactor = speedLimit / 10;
+            ball.dx = (ball.dx / Math.max(Math.abs(ball.dx), 0.1)) * scaleFactor;
+            ball.dy = (ball.dy / Math.max(Math.abs(ball.dy), 0.1)) * scaleFactor;
         } else {
-            let dampingFactor = (speed / 10) * (1 - elasticity);
+            let dampingFactor = (speedLimit / 10) * (1 - elasticity);
             dampingFactor = Math.max(0.1, Math.min(dampingFactor, 1.0));
-            for (let ball of this.balls) {
-                ball.elasticity = elasticity;
-                ball.timeMultiplier = this.timeMultiplier;
-                ball.dx *= dampingFactor;
-                ball.dy *= dampingFactor;
-            }
-        }
-
-        for (let ball1 of this.balls) {
-            for (let ball2 of this.balls) {
-                if (ball1 !== ball2 && ball1.isCollidingWith(ball2)) {
-                    ball1.resolveBallCollision(ball2);
-                }
-            }
+            ball.dx *= dampingFactor;
+            ball.dy *= dampingFactor;
         }
     }
 
+    for (let ball1 of this.balls) {
+        for (let ball2 of this.balls) {
+            if (ball1 !== ball2 && ball1.isCollidingWith(ball2)) {
+                ball1.resolveBallCollision(ball2);
+            }
+        }
+    }
+}
+
+    // Кнопка паузе
     pauseBalls() {
         this.isPaused = true;
         this.toggleButton.showPlayButton();
         this.menu.classList.remove('hidden');
     }
     
+    // Кнопка воспроизведения
     playBalls() {
         this.isPaused = false;
         this.toggleButton.showPauseButton();
@@ -406,7 +392,7 @@ class ControlPanel {
         draw();
     }
     
-
+    // Создание шарика с его параметрами на панели
     createBall() {
         const radius = this.sizeSlider.getValue();
         const color = this.colorInput.value;
@@ -423,48 +409,34 @@ class ControlPanel {
         );
 
         const ballContainer = document.getElementById('ballContainer');
-        if (ballContainer) {
             while (ballContainer.firstChild) {
                 ballContainer.removeChild(ballContainer.firstChild);
             }
 
             newBall.renderInMenu(ballContainer);
             this.updateValues();
-        } else {
-            console.error('Ball container not found.');
-        }
     }
 
+    // Открытие меню материалов
     showMaterialMenu() {
-        if (this.menu && this.materialMenu) {
             this.menu.classList.add('hidden');
             this.materialMenu.classList.remove('hidden');
             this.selectedMaterial = this.materialList.find(mat => mat.name === this.materialTypeSelect.value) || { name: 'Plastic', mass: 1 };
-        } else {
-            console.error('Menu or material menu not found.');
-        }
     }
 
+    // Открытия меню создания новых материалов
     showAddMaterialMenu() {
-        if (this.menu && this.addMaterialMenu) {
             this.menu.classList.add('hidden');
             this.addMaterialMenu.classList.remove('hidden');
-        
-        } else {
-            console.error('Menu or add material menu not found.');
-        }
     }
     
-
+    // Закрытие меню создания материалов
     cancelAddMaterial() {
-        if (this.addMaterialMenu && this.menu) {
             this.addMaterialMenu.classList.add('hidden');
             this.menu.classList.remove('hidden');
-        } else {
-            console.error('Add material menu or main menu not found.');
-        }
     }
 
+    // Сохранение нового материала
     saveNewMaterial() {
         const materialName = this.materialNameInput.value.trim();
         const materialMass = parseFloat(this.materialMassSelect.value);
@@ -479,8 +451,8 @@ class ControlPanel {
         this.showMainMenu();
     }
 
+    // Обновление списка материалов
     updateMaterialList() {
-        if (this.materialTypeSelect && Array.isArray(this.materialList)) {
             this.materialTypeSelect.innerHTML = '';
             this.materialList.forEach(material => {
                 const option = document.createElement('option');
@@ -493,38 +465,44 @@ class ControlPanel {
                 this.selectedMaterial = this.materialList[0];
                 this.materialTypeSelect.value = this.selectedMaterial.name;
             }
-        } else {
-            console.error('Material type select element or material list not found.');
-        }
     }
     
-
+    // Отобржаение основного меню gameMenu
     showMainMenu() {
-        if (this.menu && this.materialMenu && this.addMaterialMenu) {
             this.materialMenu.classList.add('hidden');
             this.addMaterialMenu.classList.add('hidden');
             this.menu.classList.remove('hidden');
-        } else {
-            console.error('Main menu or other menu elements not found.');
-        }
     }
 
-    updateCanvas(ctx) {
-        if (ctx) {
-            const canvas = document.getElementById('myCanvas');
-            if (canvas) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (let ball of this.balls) {
-                    ball.draw(ctx);
-                }
-                for (let shape of this.shapes) {
-                    shape.draw(ctx);
-                }
+    // Настройка текста BAM
+    updateBamTexts(ctx) {
+        const currentTime = Date.now();
+        this.bamTexts = this.bamTexts.filter(bamText => {
+            const elapsedTime = currentTime - bamText.startTime;
+            
+            if (elapsedTime > 2000) {
+                ctx.clearRect(bamText.x, bamText.y - bamText.height, bamText.width, bamText.height);
+                return false;
             } else {
-                console.error('Canvas element not found.');
+                ctx.font = '20px Arial';
+                ctx.fillStyle = 'red';
+                ctx.fillText('BAM', bamText.x, bamText.y);
+                return true; 
             }
-        } else {
-            console.error('Canvas context not found.');
-        }
+        });
     }
+    
+    // Обновление канваса
+    updateCanvas(ctx) {
+        const canvas = document.getElementById('myCanvas');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let ball of this.balls) {
+            ball.draw(ctx);
+            }
+            for (let shape of this.shapes) {
+            shape.draw(ctx);
+            }
+            this.updateBamTexts(ctx);
+    }
+    
 }
