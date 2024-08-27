@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="./style.css">
 <script type="text/javascript" src="./js/Model/Ball.js"></script>
+<script type="text/javascript" src="./js/Collision/BallCollisionResolver.js"></script>
+<script type="text/javascript" src="./js/Collision/CollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/InsideShapeCollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/OutsideShapeCollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/VertexCollisionHandler.js"></script>
 <script type="text/javascript" src="./js/Model/CustomShape.js"></script>
 <script type="text/javascript" src="./js/Controller/ControlPanel.js"></script>
 <script type="text/javascript" src="./js/Controller/Button.js"></script>
@@ -155,7 +160,7 @@
     <div class="context-menu hidden" id="contextMenu">
         <div class="menu-item">
             <label for="contextColor">Color</label>
-            <input type="color" id="contextColor">
+            <input type="color" id="contextColor"> 
         </div>
         <div class="menu-item">
             <label for="contextSize">Size</label>
@@ -172,5 +177,6 @@
             <button id="EndEvent">End Event</button>
         </div>
     </div>
+
 </body>
 </html>

@@ -1,3 +1,5 @@
+
+
 let isPaused = false;
 // Класс панелей
 class ControlPanel {
