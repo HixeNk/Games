@@ -3,41 +3,42 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const canvas = document.getElementById('myCanvas');
     if (canvas) {
-     
-
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         const balls = [];
         const controlPanel = new ControlPanel(balls);
-
         let isPaused = false;
 
-        // Функция отрисовки шариков
+        // Функция отрисовки
         function draw() {
-            if (controlPanel.isPaused) return;
-            
             const ctx = document.getElementById('myCanvas').getContext('2d');
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         
-            for (let shape of controlPanel.shapes) { 
-                shape.draw(ctx);
-            }
+            // Всегда отрисовываем фигуры, независимо от паузы
+            controlPanel.shapeMenu.drawShapes(ctx);
         
+            // Отрисовываем шарики всегда, но обновляем их только если не на паузе
             for (let ball of controlPanel.balls) {
-                ball.update(canvas, controlPanel.shapes, controlPanel.balls);
+                if (!controlPanel.isPaused) {
+                    // Обновляем только когда не на паузе
+                    ball.update(canvas, controlPanel.shapeMenu.shapes, controlPanel.balls);
+                }
+                // Отрисовываем шарики всегда
                 ball.draw(ctx);
             }
-            if (ctx) {
-                controlPanel.updateCanvas(ctx);
-            }
+        
+            // Обновляем текст BAM
+            controlPanel.contextMenu.updateBamTexts(ctx);
+        
             requestAnimationFrame(draw);
         }
         
-
+        
         window.draw = draw;
 
-        canvas.addEventListener('contextmenu', function(event) {
+        // Контекстное меню для удаления шариков
+        canvas.addEventListener('contextmenu', function (event) {
             event.preventDefault();
 
             if (!isPaused) return;

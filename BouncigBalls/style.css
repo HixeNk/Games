@@ -135,18 +135,25 @@ border-radius: 3px;
 cursor: pointer;
 font-size: 14px;
 }
+
+
+/* Стили для шарика */
 .ball-item {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    position: absolute;
+    background-color: #4CAF50; /* Задаем цвет шара */
+    position: absolute; /* Позиционируем относительно контейнера */
+    left: 50%; /* Смещаем центр шарика */
+    top: 50%;
+    transform: translate(-50%, -50%); /* Центруем шарик относительно его собственного размера */
     cursor: grab;
 }
-
 
 .ball-item:hover {
     opacity: 0.8;
 }
+
 
 
 input[type="number"] {
