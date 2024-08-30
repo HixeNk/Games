@@ -1,0 +1,344 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    -webkit-user-select: none; 
+    -moz-user-select: none;    
+    -ms-user-select: none;     
+    user-select: none;        
+}
+
+canvas {
+    display: block;
+    -webkit-user-select: none; 
+    -moz-user-select: none;   
+    -ms-user-select: none;     
+    user-select: none;        
+}
+
+button {
+padding: 10px;
+border: 2px solid #000;
+border-radius: 3px;
+background-color: #fff;
+cursor: pointer;
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;   
+user-select: none;        
+}
+
+.menu button {
+width: 100%;
+padding: 10px;
+border: 2px solid rgba(0, 0, 0, 0.3); 
+background-color: rgba(255, 255, 255, 0.8);
+cursor: pointer;
+}
+
+.menu button:hover {
+background-color: rgba(240, 240, 240, 0.8); 
+}
+
+#pause, #play {
+position: absolute;
+top: 10px;
+left: 90%;
+width: 40px; 
+height: 40px; 
+transform: translateX(-50%);
+z-index: 1000;
+cursor: pointer; 
+}
+
+#pause:hover, #play:hover {
+opacity: 0.8; 
+}
+
+.control-panel {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    -webkit-user-select: none; 
+    -moz-user-select: none;   
+    -ms-user-select: none;     
+    user-select: none;     
+    cursor: grab;   
+}
+
+.control-panel label {
+display: block;
+margin-bottom: 5px;
+}
+
+.control-panel select {
+width: 100%;
+margin-bottom: 10px;
+}
+
+.menu {
+position: absolute;
+top: 0;
+left: 0;
+display: flex;
+justify-content: space-between;
+border-radius: 5px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+padding: 10px;
+margin: 10px;
+background: rgba(255, 255, 255, 0.8);
+box-sizing: border-box; 
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;     
+user-select: none;      
+cursor: grab;  
+}
+
+.menu .menu-item {
+border: 2px solid rgba(0, 0, 0, 0.3); 
+padding: 10px;
+text-align: center;
+flex: 1;
+margin: 0 5px;
+background-color: rgba(255, 255, 255, 0.8); 
+font-size: 14px;
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;     
+user-select: none;        
+}
+
+.shadow-item {
+border: 2px solid rgba(0, 0, 0, 0.3); 
+background-color: rgba(255, 255, 255, 0.8);
+border-radius: 5px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.menu .menu-item.size-item,
+.menu .menu-item.material-item,
+.menu .menu-item.color-item {
+border: 2px solid rgba(0, 0, 0, 0.3); 
+background-color: rgba(255, 255, 255, 0.8); 
+border-radius: 5px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+}
+
+.menu .menu-item.size-item {
+display: flex;
+flex-direction: column;
+align-items: center; 
+padding: 5px;
+}
+
+.menu .menu-item.size-item label {
+margin-bottom: 5px;
+font-size: 14px;
+text-align: center; 
+}
+
+.menu .menu-item.size-item select {
+width: auto;
+background-color: rgba(255, 255, 255, 0.8); 
+border: 2px solid rgba(0, 0, 0, 0.3); 
+border-radius: 3px;
+cursor: pointer;
+font-size: 14px;
+}
+
+.ball-item {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    position: absolute; 
+    left: 50%; 
+    top: 50%;
+    transform: translate(-50%, -50%); 
+    cursor: grab;
+}
+
+.ball-item:hover {
+    opacity: 0.8;
+}
+
+input[type="number"] {
+width: 100%;
+padding: 10px;
+border: 2px solid rgba(0, 0, 0, 0.3); 
+border-radius: 3px;
+box-sizing: border-box;
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;    
+user-select: none;         
+}
+
+input[type="color"] {
+width: 100%;
+padding: 0;
+border: none;
+background: none;
+cursor: pointer;
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;     
+user-select: none;         
+}
+
+.hidden {
+display: none;
+}
+
+#materialMenu {
+border: 2px solid rgba(0, 0, 0, 0.3); 
+border-radius: 3px;
+padding: 10px;
+cursor: grab;
+}
+
+#addMaterialMenu {
+    position: absolute;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    cursor: grab; 
+}
+
+#addMaterialMenu.dragging {
+    cursor: grabbing; 
+    opacity: 0.8; 
+}
+
+#addMaterialMenu label {
+display: block;
+margin-bottom: 5px;
+}
+
+#addMaterialMenu input,
+#addMaterialMenu select {
+width: 100%;
+padding: 10px;
+margin-bottom: 10px;
+border: 2px solid rgba(0, 0, 0, 0.3);
+border-radius: 3px;
+box-sizing: border-box;
+-webkit-user-select: none; 
+-moz-user-select: none;    
+-ms-user-select: none;     
+user-select: none;         
+}
+
+#addMaterialMenu button {
+padding: 10px;
+border: 2px solid rgba(0, 0, 0, 0.3);
+border-radius: 3px;
+background-color: rgba(255, 255, 255, 0.8);
+cursor: pointer;
+width: 48%;
+margin-right: 4%;
+}
+
+#addMaterialMenu button:last-child {
+margin-right: 0;
+}
+
+#materialButtonContainer {
+display: flex;
+justify-content: space-between;
+gap: 10px; 
+}
+
+#materialButtonContainer button {
+flex: 1; 
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    -webkit-user-select: none;
+    -moz-user-select: none;    
+    -ms-user-select: none;    
+    user-select: none;        
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+    -webkit-user-select: none; 
+    -moz-user-select: none;    
+    -ms-user-select: none;    
+    user-select: none;         
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+    -webkit-user-select: none; 
+    -moz-user-select: none;    
+    -ms-user-select: none;     
+    user-select: none;         
+}
+
+.context-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    z-index: 1000; 
+}
+
+.context-menu.hidden {
+    display: none;
+}
+
+.context-menu .menu-item {
+    margin: 5px 0;
+}
+
+.coordinate-pair {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.coordinate-pair input {
+    width: calc(50% - 5px); 
+}
+
+input[type="text"]#shapeInput {
+    width: 100%; 
+    padding: 5px;
+    margin: 2px 0;
+    box-sizing: border-box;
+    -webkit-user-select: text; 
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    pointer-events: auto; 
+}
+
+#shapeMenu {
+    cursor: grab;
+}
