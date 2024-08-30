@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="./style.css">
+<script type="text/javascript" src="./js/Model/Ball.js"></script>
+<script type="text/javascript" src="./js/Collision/BallCollisionResolver.js"></script>
+<script type="text/javascript" src="./js/Collision/CollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/InsideShapeCollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/OutsideShapeCollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Collision/VertexCollisionHandler.js"></script>
+<script type="text/javascript" src="./js/Model/CustomShape.js"></script>
+<script type="text/javascript" src="./js/Controller/ControlPanel.js"></script>
+<script type="text/javascript" src="./js/Controller/ContextMenu.js"></script>
+<script type="text/javascript" src="./js/Controller/ShapeMenu.js"></script>
+<script type="text/javascript" src="./js/Controller/MaterialMenu.js"></script>
+<script type="text/javascript" src="./js/Controller/MainMenu.js"></script>
+<script type="text/javascript" src="./js/Controller/Button.js"></script>
+<script type="text/javascript" src="./js/Controller/SliderButton.js"></script>
+<script type="text/javascript" src="./js/Controller/ToggleButton.js"></script>
+<script type="text/javascript" src="./index.js" defer></script>
+<title>Препятствия и шарики</title>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+  <!--Панель ControlPanel -->  
+    <div class="control-panel">
+        <label for="speed">Speed</label>
+        <select id="speed">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <label for="elasticity">Elasticity</label>
+        <select id="elasticity">
+            <option value="0.5">0.5</option>
+            <option value="0.6">0.6</option>
+            <option value="0.7">0.7</option>
+            <option value="0.8">0.8</option>
+            <option value="0.9">0.9</option>
+            <option value="1" selected>1</option>
+        </select>
+    </div>
+
+    <!--Панель GameMenu для создания шариков-->
+    <div class="menu hidden" id="gameMenu">
+        <div class="menu-item size-item shadow-item">
+            <label for="size">Size</label>
+            <input type="range" id="sizeRange" min="10" max="20" value="15" step="1">
+            <span id="sizeValue">15</span>
+        </div>
+    
+        <div class="menu-item material-item shadow-item">
+            <label for="material">Material</label>
+            <div id="materialButtonContainer">
+                <button id="material">Choose Material</button>
+                <button id="addMaterial">Add Material</button>
+            </div>
+        </div>
+        <div class="menu-item color-item shadow-item">
+            <label for="color">Color</label>
+            <input type="color" id="color" name="color">
+        </div>
+        <div class="menu-item create-ball-item shadow-item">
+            <button id="createBall">Create Ball</button>
+            <button id="shapeButton">Shape</button>
+        </div>
+        <div class="menu-item ball-container shadow-item" id="ballContainer"></div>
+
+    </div>
+
+    <!--Панель создания фигур-->
+    <div class="menu hidden" id="shapeMenu">
+        <div class="menu-item shadow-item">
+            <label for="shapeInput">Enter Shape Coordinates</label>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput1" placeholder="x1">
+                <input type="text" id="shapeInput2" placeholder="y1">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput3" placeholder="x2">
+                <input type="text" id="shapeInput4" placeholder="y2">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput5" placeholder="x3">
+                <input type="text" id="shapeInput6" placeholder="y3">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput7" placeholder="x4">
+                <input type="text" id="shapeInput8" placeholder="y4">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput9" placeholder="x5">
+                <input type="text" id="shapeInput10" placeholder="y5">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput11" placeholder="x6">
+                <input type="text" id="shapeInput12" placeholder="y6">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput13" placeholder="x7">
+                <input type="text" id="shapeInput14" placeholder="y7">
+            </div>
+            <div class="coordinate-pair">
+                <input type="text" id="shapeInput15" placeholder="x8">
+                <input type="text" id="shapeInput16" placeholder="y8">
+            </div>
+        </div>
+        <div class="menu-item shadow-item">
+            <label for="color">Color</label>
+            <input type="color" id="colorShape" name="color">
+            <button id="drawShape">Draw Shape</button>
+            <button id="closeShapeMenu">Cancel</button>
+        </div>
+    </div>
+    
+    <!--Панель материалов-->
+    <div class="menu hidden" id="materialMenu">
+        <div class="menu-item material-list shadow-item">
+            <label for="materialType">Available Materials</label>
+            <select id="materialType"></select>
+        </div>
+        <div class="menu-item material-option shadow-item">
+            <button id="backToMainMenu">Cancel</button>
+        </div>
+    </div>
+    
+    <!--Панель создания материалов-->
+    <div class="menu hidden" id="addMaterialMenu">
+        <div class="menu-item shadow-item">
+            <label for="materialName">Material Name</label>
+            <input type="text" id="materialName" placeholder="Enter material name">
+        </div>
+        <div class="menu-item shadow-item">
+            <label for="materialMass">Mass</label>
+            <select id="materialMass">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        
+        <div class="menu-item shadow-item" id="materialButtonContainer">
+            <button id="saveMaterial">Save</button>
+            <button id="cancelMaterial">Cancel</button>
+        </div>
+    </div>
+
+    <img id="pause" src="./images/pause_button.png" alt="Pause" />
+    <img id="play" src="./images/play_button.png" alt="Play" class="hidden" />
+
+    <!--Контекстное меню-->
+    <div class="context-menu hidden" id="contextMenu">
+        <div class="menu-item">
+            <label for="contextColor">Color</label>
+            <input type="color" id="contextColor"> 
+        </div>
+        <div class="menu-item">
+            <label for="contextSize">Size</label>
+            <input type="range" id="contextSizeRange" min="10" max="20" step="1">
+            <span id="contextSizeValue">15</span>
+        </div>
+        <div class="menu-item">
+            <button id="applyChanges">Apply</button>
+            <button id="closeMenu">Close</button>
+            <button id="deleteBall">Delete Ball</button> 
+        </div>
+        <div class="menu-item">
+            <button id="StartEvent">Start Event</button>
+            <button id="EndEvent">End Event</button>
+        </div>
+    </div>
+
+</body>
+</html>
