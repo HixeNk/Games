@@ -15,7 +15,7 @@ class OutsideShapeCollisionHandler {
                 }
             }
         } else {
-            let closestPoint = ball.findClosestPoint(shape);
+            let closestPoint = ShapeCollisionHandler.findClosestPoint(ball, shape);
             let dx = ball.x - closestPoint.x;
             let dy = ball.y - closestPoint.y;
             let distance = Math.sqrt(dx * dx + dy * dy);

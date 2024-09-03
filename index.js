@@ -10,6 +10,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const controlPanel = new ControlPanel(balls);
         let isPaused = false;
 
+        // Создаем экземпляр ShapeMenu
+        const shapeMenu = new ShapeMenu(draw);
+
+        // Инициализируем стандартные фигуры
+        shapeMenu.shapes = [
+            new CustomShape([[70, 70], [70, 650], [1450, 650], [1450, 70], [1000, 70], [1000, 300], [500, 300], [500, 70]], 'orange'),
+            new CustomShape([[700, 350], [800, 350], [870, 420], [870, 520], [800, 590], [700, 590], [630, 520], [630, 420]], 'lime'),
+            new CustomShape([[250, 120], [320, 170], [320, 250], [250, 300], [180, 250], [180, 170]], 'blue'),
+            new CustomShape([[250, 400], [350, 400], [400, 470], [300, 570], [200, 470]], 'red'),
+            new CustomShape([[1100, 150], [1300, 150], [1300, 330], [1100, 330]], 'black'),
+            new CustomShape([[1150, 400], [1250, 550], [1050, 550]], 'purple')
+        ];
+
+        // Сохраняем экземпляр ShapeMenu в controlPanel
+        controlPanel.shapeMenu = shapeMenu;
+
         // Функция отрисовки
         function draw() {
             const ctx = document.getElementById('myCanvas').getContext('2d');

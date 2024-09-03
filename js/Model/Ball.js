@@ -1,4 +1,4 @@
-// Класс объкта шарика
+// Класс объекта шарика
 class Ball {
     constructor(x, y, radius, dx, dy, color = 'red', material = { name: 'Plastic', mass: 1 }) {
         this.x = x;
@@ -16,6 +16,8 @@ class Ball {
         this.id = Math.random().toString(36).substr(2, 9);
         this.onCollision = null;
     }
+
+    
     // Отрисовка шарика
     draw(ctx) {
         ctx.beginPath();
@@ -47,6 +49,10 @@ class Ball {
         }
     }
     
+    resolveShapeCollision(start, end, shape) {
+        ShapeCollisionHandler.resolveCollision(this, start, end, shape);
+    }
+
     // Ограничитель скорости для шарика
     limitSpeed() {
         const currentSpeed = Math.sqrt(this.dx ** 2 + this.dy ** 2);
@@ -57,65 +63,6 @@ class Ball {
         }
     }
 
-    // Обработчик столкновений шариков с фигурами
-    resolveShapeCollision(start, end, shape) {
-        let normal = { x: end[1] - start[1], y: start[0] - end[0] };
-        let length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-        normal.x /= length;
-        normal.y /= length;
-    
-        const dotProduct = this.dx * normal.x + this.dy * normal.y;
-        this.dx -= 2 * dotProduct * normal.x;
-        this.dy -= 2 * dotProduct * normal.y;
-    
-        let closestPoint = this.findClosestPoint(shape);
-        let distance = Math.sqrt((this.x - closestPoint.x) ** 2 + (this.y - closestPoint.y) ** 2);
-        if (distance < this.radius) {
-            let overlap = this.radius - distance;
-            let unitNormal = { x: this.x - closestPoint.x, y: this.y - closestPoint.y };
-            let normLength = Math.sqrt(unitNormal.x * unitNormal.x + unitNormal.y * unitNormal.y);
-            unitNormal.x /= normLength;
-            unitNormal.y /= normLength;
-    
-            this.x += unitNormal.x * overlap;
-            this.y += unitNormal.y * overlap;
-    
-            this.dx *= this.elasticity;
-            this.dy *= this.elasticity;
-        }
-    }
-    
-    findClosestPoint(shape) {
-        let closestPoint = { x: this.x, y: this.y };
-        let minDist = Infinity;
-        
-        for (let i = 0; i < shape.points.length; i++) {
-            let start = shape.points[i];
-            let end = shape.points[(i + 1) % shape.points.length];
-            let projection = this.projectOntoLine(start, end);
-            
-            let dist = Math.sqrt((this.x - projection.x) ** 2 + (this.y - projection.y) ** 2);
-            if (dist < minDist) {
-                minDist = dist;
-                closestPoint = projection;
-            }
-        }
-        
-        return closestPoint;
-    }
-    
-    projectOntoLine(start, end) {
-        const lineLenSq = (end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2;
-        if (lineLenSq === 0) return { x: start[0], y: start[1] };
-    
-        const t = ((this.x - start[0]) * (end[0] - start[0]) + (this.y - start[1]) * (end[1] - start[1])) / lineLenSq;
-        const clampedT = Math.max(0, Math.min(1, t));
-    
-        return {
-            x: start[0] + clampedT * (end[0] - start[0]),
-            y: start[1] + clampedT * (end[1] - start[1])
-        };
-    }
 
     // Расчет будущего столкновения шарика и фигуры
     isCollidingWith(otherBall) {
